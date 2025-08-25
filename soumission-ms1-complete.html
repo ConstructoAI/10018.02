@@ -1,0 +1,4065 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Application de soumission budgétaire interactive pour Groupe Perreault.">
+    <meta name="author" content="Groupe Perreault">
+    <title>SOUMISSION BUDGÉTAIRE INTERACTIVE - Groupe Perreault</title>
+    <style>
+        /* Variables CSS */
+        :root {
+            --primary-color: #4b5563;
+            --primary-light: #6b7280;
+            --primary-dark: #374151;
+            --primary-bg: #f9fafb;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --success-color: #6b7280;
+            --success-hover: #4b5563;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition-base: all 0.3s ease;
+        }
+
+        /* Reset et Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.3;
+            color: #333;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* Conteneur principal */
+        .container {
+            max-width: 8.5in;
+            margin: 20px auto;
+            background: white;
+            box-shadow: var(--shadow-lg);
+            padding: 0.4in;
+            position: relative;
+        }
+
+        /* Barre de contrôle */
+        .control-bar {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 20px 15px;
+            margin: -0.4in -0.4in 20px -0.4in;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+
+        .control-bar h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            opacity: 0.95;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition-base);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-width: 140px;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn:active {
+            transform: translateY(0) scale(1);
+        }
+
+        .control-btn.danger {
+            background: rgba(239, 68, 68, 0.8);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .control-btn.danger:hover {
+            background: rgba(220, 38, 38, 0.9);
+        }
+
+        .control-btn.success {
+            background: rgba(34, 197, 94, 0.9);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+
+        .control-btn.success:hover {
+            background: rgba(22, 163, 74, 1);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Paramètres */
+        .settings-row {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .settings-row label {
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        .settings-row input[type="number"] {
+            width: 60px;
+            padding: 4px 8px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 3px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .settings-row input[type="number"]:focus {
+            outline: none;
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 15px;
+        }
+
+        .company-info {
+            text-align: right;
+            font-size: 10px;
+            line-height: 1.2;
+            color: #555;
+        }
+
+        .company-info input {
+            transition: all 0.2s ease;
+            text-align: right;
+            color: #555;
+            font-family: inherit;
+            font-size: 10px;
+        }
+
+        .company-info input:hover:not(:focus) {
+            background: rgba(75, 85, 99, 0.03) !important;
+            cursor: pointer;
+        }
+
+        .company-info input:focus {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 2px;
+            padding: 1px 3px;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.05);
+        }
+
+        .company-info input.inline {
+            display: inline-block;
+            margin: 0 2px;
+        }
+
+        .company-name {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 2px;
+            color: var(--primary-dark);
+        }
+
+        .company-name input {
+            color: var(--primary-dark);
+            font-weight: bold;
+            font-size: 12px;
+            width: 100%;
+            margin-bottom: 2px;
+        }
+
+        .company-info > div {
+            margin-bottom: 1px;
+        }
+
+        .company-info > div:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Title */
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0 8px 0;
+            text-align: left;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 15px;
+            margin-top: 8px;
+        }
+        
+        /* Project Info */
+        .project-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-section {
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-section h4 {
+            font-weight: bold;
+            font-size: 10px;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--primary-color);
+        }
+
+        .info-section p {
+            font-size: 10px;
+            line-height: 1.4;
+            margin-bottom: 3px;
+        }
+
+        /* Tables */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            table-layout: fixed;
+            background: white;
+        }
+
+        .table-header th {
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 10px;
+            border-right: 1px solid #777;
+            vertical-align: middle;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            color: white;
+        }
+
+        .table-header th:nth-child(1) { width: 46%; text-align: left; }
+        .table-header th:nth-child(2) { width: 10%; text-align: center; }
+        .table-header th:nth-child(3) { width: 18%; text-align: right; }
+        .table-header th:nth-child(4) { width: 18%; text-align: right; }
+        .table-header th:nth-child(5) { width: 6%; text-align: center; border-right: none; }
+
+        .table tbody tr:nth-child(even) { background: #f9fafb; }
+        .table tbody tr:hover { background: #f3f4f6; }
+
+        .table td {
+            padding: 6px 8px;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            font-size: 10px;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+
+        .table td:nth-child(1) { width: 46%; text-align: left; }
+        .table td:nth-child(2) { width: 10%; text-align: center; }
+        .table td:nth-child(3) { width: 18%; text-align: right; }
+        .table td:nth-child(4) { width: 18%; text-align: right; font-weight: bold; }
+        .table td:nth-child(5) { width: 6%; text-align: center; border-right: none; }
+
+        .item-description { 
+            font-weight: bold; 
+            color: #333; 
+            line-height: 1.3;
+            position: relative;
+        }
+        
+        .item-details { 
+            font-size: 9px; 
+            color: #666; 
+            display: block; 
+            margin-top: 3px; 
+            font-style: italic; 
+            line-height: 1.3; 
+            font-weight: normal; 
+        }
+
+        /* Champs de description éditables */
+        .item-title-input {
+            font-weight: bold;
+            color: #333;
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 10px;
+            line-height: 1.3;
+            padding: 2px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .item-title-input:hover {
+            background: rgba(75, 85, 99, 0.03);
+            cursor: pointer;
+        }
+
+        .item-title-input:focus {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 2px;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.05);
+        }
+
+        .item-details-input {
+            font-size: 9px;
+            color: #666;
+            border: none;
+            background: transparent;
+            width: 100%;
+            line-height: 1.3;
+            font-style: italic;
+            font-weight: normal;
+            padding: 2px;
+            margin-top: 3px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 30px;
+        }
+
+        .item-details-input:hover {
+            background: rgba(75, 85, 99, 0.03);
+            cursor: pointer;
+        }
+
+        .item-details-input:focus {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 2px;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.05);
+            font-style: normal;
+        }
+        
+        .category-header-row td { 
+            background: #f9fafb; 
+            font-weight: bold; 
+            padding: 6px 8px !important; 
+            color: var(--primary-dark); 
+            font-size: 11px;
+        }
+        
+        /* Titres de catégories éditables */
+        .category-title-input {
+            font-weight: bold;
+            color: var(--primary-dark);
+            font-size: 11px;
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 2px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        
+        .category-title-input:hover {
+            background: rgba(75, 85, 99, 0.03);
+            cursor: pointer;
+        }
+        
+        .category-title-input:focus {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 2px;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.05);
+        }
+        
+        .subtotal-row td { 
+            background: #f3f4f6 !important; 
+            font-weight: bold !important; 
+            padding: 6px 8px !important; 
+        }
+        
+        .total-row td { 
+            background: var(--primary-bg) !important; 
+            font-weight: bold !important; 
+            font-size: 11px !important; 
+            border-top: 2px solid var(--primary-color); 
+        }
+
+        /* Inputs */
+        .amount-input {
+            width: 100%;
+            padding: 4px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 10px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            transition: var(--transition-base);
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--primary-bg);
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.1);
+        }
+
+        .amount-input.error {
+            border-color: var(--danger-color);
+            background: #fef2f2;
+        }
+
+        .quantity-input {
+            width: 100%;
+            padding: 4px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 10px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            transition: var(--transition-base);
+        }
+
+        .quantity-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--primary-bg);
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.1);
+        }
+
+        .quantity-input.error {
+            border-color: var(--danger-color);
+            background: #fef2f2;
+        }
+
+        /* Header inputs */
+        .header-input {
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 3px 8px;
+            font-size: 11px;
+            background: #f9f9f9;
+            transition: var(--transition-base);
+        }
+
+        .header-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.1);
+        }
+
+        .date-input {
+            width: 140px;
+        }
+
+        /* Info inputs */
+        .info-input {
+            border: 1px solid #e5e7eb;
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-size: 10px;
+            background: white;
+            transition: var(--transition-base);
+            width: 100%;
+            font-family: inherit;
+            min-width: 40px;
+        }
+
+        .info-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .info-input.inline {
+            display: inline;
+            width: auto;
+        }
+
+        .info-input::placeholder {
+            color: #9ca3af;
+            font-style: italic;
+            font-size: 9px;
+        }
+
+        strong .info-input {
+            font-weight: 600;
+        }
+
+        /* Styles spéciaux pour les champs de contact */
+        .info-section input {
+            transition: all 0.2s ease;
+        }
+
+        .info-section input:hover:not(:focus) {
+            background: rgba(75, 85, 99, 0.03) !important;
+            cursor: pointer;
+        }
+
+        .info-section input:focus {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 2px;
+            padding: 2px 4px;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.05);
+        }
+
+        .amount-display {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #111;
+        }
+
+        /* Checkbox pour masquer */
+        .hide-checkbox {
+            cursor: pointer;
+            transform: scale(1.2);
+            accent-color: var(--primary-color);
+        }
+
+
+        /* Section cachée */
+        .section-row.hidden {
+            display: none;
+        }
+
+        /* Section entière cachée */
+        .section.hidden-section {
+            display: none !important;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 15px;
+            transition: opacity 0.3s;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .section.hidden-section {
+            display: none;
+        }
+
+        /* Récapitulatif */
+        .summary-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .summary-box h4 {
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .summary-table {
+            width: 100%;
+            font-size: 11px;
+        }
+
+        .summary-table td {
+            padding: 6px 10px;
+        }
+
+        .summary-table .label {
+            text-align: right;
+            padding-right: 20px;
+            color: #555;
+        }
+
+        .summary-table .value {
+            text-align: right;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            width: 150px;
+            color: #111;
+        }
+
+        .summary-table .total-row {
+            border-top: 2px solid var(--primary-color);
+            font-size: 14px;
+            background: white;
+        }
+
+        /* Notes and exclusions */
+        .exclusions, .conditions {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #fafafa 0%, #f9fafb 100%);
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .exclusions h4, .conditions h4 { 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+            color: var(--primary-dark); 
+            font-size: 11px; 
+        }
+        
+        .exclusions ul, .conditions ul { 
+            margin-left: 15px; 
+        }
+        
+        .exclusions li, .conditions li { 
+            margin-bottom: 4px; 
+            font-size: 9px; 
+            line-height: 1.4; 
+            color: #555;
+            display: list-item;
+            list-style-type: disc;
+            list-style-position: outside;
+        }
+        
+        .exclusions li {
+            padding-left: 2px;
+        }
+        
+        .conditions li {
+            display: list-item;
+            list-style-type: disc;
+            list-style-position: outside;
+            padding-left: 2px;
+        }
+        
+        /* Champs éditables pour conditions et exclusions */
+        .condition-input, .exclusion-input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 9px;
+            line-height: 1.4;
+            color: #555;
+            padding: 2px 0;
+            margin: 0;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 18px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        
+        .condition-input:hover, .exclusion-input:hover {
+            background: rgba(75, 85, 99, 0.03);
+            cursor: pointer;
+        }
+        
+        .condition-input:focus, .exclusion-input:focus {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 2px;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.05);
+            padding: 2px 4px;
+            margin: -2px -4px;
+            width: calc(100% + 8px);
+        }
+        
+        .condition-label {
+            font-weight: bold;
+            color: #333;
+            margin-right: 5px;
+        }
+
+        /* Section Garanties */
+        .warranty-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #e6f3ff 0%, #d1e9ff 100%);
+            border: 1px solid #0284c7;
+            border-left: 4px solid #0284c7;
+            border-radius: 4px;
+        }
+
+        .warranty-section h4 {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0c4a6e;
+            font-size: 11px;
+        }
+
+        .warranty-section ul {
+            margin-left: 15px;
+        }
+
+        .warranty-section li {
+            margin-bottom: 4px;
+            font-size: 9px;
+            line-height: 1.4;
+            color: #0c4a6e;
+            display: list-item;
+            list-style-type: none;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .warranty-section li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* Section Pièces jointes */
+        .attachments-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0284c7;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .attachments-section h4 {
+            font-size: 14px;
+            color: #0c4a6e;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .attachment-dropzone {
+            border: 2px dashed #0284c7;
+            border-radius: 6px;
+            padding: 30px;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .attachment-dropzone:hover {
+            background: #f0f9ff;
+            border-color: #0369a1;
+        }
+        
+        .attachment-dropzone.dragover {
+            background: #dbeafe;
+            border-color: #0369a1;
+            transform: scale(1.02);
+        }
+        
+        .dropzone-text {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        
+        .dropzone-icon {
+            font-size: 48px;
+            color: #0284c7;
+            margin-bottom: 10px;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #0284c7;
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input-label:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .attachments-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .attachment-item:hover {
+            background: #f9fafb;
+            border-color: #0284c7;
+            transform: translateX(5px);
+        }
+        
+        .attachment-icon {
+            font-size: 24px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .attachment-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .attachment-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .attachment-size {
+            font-size: 9px;
+            color: #64748b;
+        }
+        
+        .attachment-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .attachment-btn {
+            padding: 5px 10px;
+            font-size: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 3px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .attachment-btn:hover {
+            background: #f9fafb;
+            border-color: #0284c7;
+        }
+        
+        .attachment-btn.view {
+            color: #0284c7;
+            border-color: #0284c7;
+        }
+        
+        .attachment-btn.view:hover {
+            background: #0284c7;
+            color: white;
+        }
+        
+        .attachment-btn.remove {
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        .attachment-btn.remove:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .file-preview-modal {
+            display: none;
+            position: fixed;
+            z-index: 4000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .file-preview-modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .preview-content {
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            border-radius: 8px;
+            overflow: auto;
+            position: relative;
+        }
+        
+        .preview-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1;
+        }
+        
+        .preview-close:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+        
+        .preview-text {
+            padding: 20px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .supported-formats {
+            font-size: 9px;
+            color: #64748b;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        /* Section Signature */
+        .signature-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0284c7;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .signature-section h4 {
+            font-size: 14px;
+            color: #0c4a6e;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .decision-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .decision-btn {
+            padding: 15px 40px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-accept:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-refuse {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            color: white;
+        }
+
+        .btn-refuse:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .signature-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .signature-form.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .confirmation-message {
+            display: none;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .confirmation-message.accepted {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .confirmation-message.refused {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .confirm-action-btn {
+            margin-top: 15px;
+            padding: 10px 30px;
+            background: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .confirm-action-btn:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        .signature-timestamp {
+            margin-top: 10px;
+            font-size: 9px;
+            color: #6b7280;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .signature-section.signed .decision-buttons {
+            display: none;
+        }
+
+        .signature-section.signed .signature-form {
+            display: none !important;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 9px;
+            color: #666;
+            border-top: 2px solid var(--primary-color);
+            padding-top: 15px;
+        }
+
+        .footer input {
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+        }
+
+        .footer input:hover:not(:focus) {
+            background: rgba(102, 102, 102, 0.03) !important;
+            cursor: pointer;
+        }
+
+        .footer input:focus {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 2px;
+            padding: 1px 3px;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 102, 102, 0.05);
+        }
+        
+        .page-number { 
+            text-align: right; 
+            margin-top: 20px; 
+            padding-top: 10px; 
+            font-size: 9px; 
+            color: #999; 
+            border-top: 1px solid #ddd;
+        }
+
+        /* Indicateur de sauvegarde */
+        .save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: var(--success-color);
+            color: white;
+            border-radius: 6px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1001;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .save-indicator.show {
+            display: block;
+            animation: fadeInOut 2s ease;
+        }
+
+        .save-indicator.error {
+            background: var(--danger-color);
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal pour liste des sauvegardes */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            max-width: 600px;
+            width: 90%;
+            max-height: 70vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--primary-dark);
+            font-size: 18px;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 24px;
+            color: #999;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--danger-color);
+        }
+
+        .saved-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .saved-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .saved-item:hover {
+            background: #f3f4f6;
+            border-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .saved-item-info {
+            flex: 1;
+        }
+
+        .saved-item-number {
+            font-weight: bold;
+            color: var(--primary-dark);
+            font-size: 12px;
+        }
+
+        .saved-item-details {
+            font-size: 10px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .saved-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .saved-item-btn {
+            padding: 5px 10px;
+            font-size: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .saved-item-btn.load {
+            color: var(--primary-dark);
+            border-color: var(--primary-color);
+        }
+
+        .saved-item-btn.load:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .saved-item-btn.delete {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .saved-item-btn.delete:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .no-saves {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 11px;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Mode impression */
+        @media print {
+            body {
+                background: white;
+                font-size: 9px;
+            }
+            
+            .control-bar {
+                display: none !important;
+            }
+            
+            .loading-overlay {
+                display: none !important;
+            }
+            
+            .save-indicator {
+                display: none !important;
+            }
+            
+            .container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0.3in;
+                max-width: 100%;
+            }
+            
+            .hide-checkbox {
+                display: none !important;
+            }
+            
+            .amount-input, .quantity-input, .header-input, .info-input,
+            .item-title-input, .item-details-input, .condition-input, .exclusion-input,
+            .category-title-input {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+            }
+            
+            .item-title-input {
+                font-weight: bold !important;
+                color: #333 !important;
+            }
+            
+            .item-details-input {
+                font-size: 9px !important;
+                color: #666 !important;
+                font-style: italic !important;
+                height: auto !important;
+            }
+            
+            .condition-input, .exclusion-input {
+                font-size: 9px !important;
+                color: #555 !important;
+                height: auto !important;
+                line-height: 1.4 !important;
+            }
+            
+            .condition-label {
+                font-weight: bold !important;
+                color: #333 !important;
+            }
+            
+            .category-title-input {
+                font-weight: bold !important;
+                color: var(--primary-dark) !important;
+                font-size: 11px !important;
+            }
+            
+            .table-header th:nth-child(5),
+            .table td:nth-child(5) {
+                display: none !important;
+            }
+            
+            .signature-section:not(.signed) {
+                display: none !important;
+            }
+            
+            .decision-buttons {
+                display: none !important;
+            }
+            
+            .signature-form {
+                display: none !important;
+            }
+            
+            .attachments-section {
+                display: none !important;
+            }
+            
+            .file-preview-modal {
+                display: none !important;
+            }
+            
+            .table-header th:nth-child(1) { width: 52% !important; }
+            .table td:nth-child(1) { width: 52% !important; }
+            
+            .table-header th {
+                background: var(--primary-dark) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            .category-header-row td,
+            .subtotal-row td,
+            .total-row td,
+            .summary-box {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .summary-box {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Responsive - Tablettes */
+        @media screen and (max-width: 1024px) {
+            .container {
+                margin: 15px;
+                padding: 0.3in;
+            }
+            
+            .control-buttons {
+                grid-template-columns: repeat(2, 1fr);
+                display: grid;
+                gap: 8px;
+            }
+            
+            .table {
+                font-size: 9px;
+            }
+            
+            .company-info {
+                font-size: 9px;
+            }
+        }
+        
+        /* Responsive - Mobile */
+        @media screen and (max-width: 768px) {
+            body {
+                font-size: 12px;
+            }
+            
+            .container {
+                margin: 0;
+                padding: 15px;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            /* Barre de contrôle mobile */
+            .control-bar {
+                margin: -15px -15px 15px -15px;
+                padding: 15px 10px;
+                position: relative;
+            }
+            
+            .control-bar h3 {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .control-buttons {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .control-btn {
+                width: 100%;
+                padding: 12px 10px;
+                font-size: 12px;
+                min-width: auto;
+                min-height: 44px; /* Taille minimale tactile recommandée */
+            }
+            
+            .settings-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                margin-top: 15px;
+            }
+            
+            .settings-row label {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 12px;
+            }
+            
+            .settings-row input[type="number"] {
+                width: 80px;
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+            
+            /* Header mobile */
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding-bottom: 10px;
+            }
+            
+            .company-info {
+                width: 100%;
+                text-align: left;
+                font-size: 11px;
+                margin-top: 10px;
+            }
+            
+            .company-name {
+                font-size: 14px;
+            }
+            
+            /* Titre et sous-titre */
+            .title {
+                font-size: 20px;
+                margin: 10px 0;
+                padding-bottom: 5px;
+            }
+            
+            .subtitle {
+                font-size: 12px;
+                flex-wrap: wrap;
+            }
+            
+            /* Info projet mobile */
+            .project-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .info-section {
+                padding: 12px;
+            }
+            
+            .info-section h4 {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+            
+            .info-section p {
+                font-size: 11px;
+                line-height: 1.5;
+            }
+            
+            .info-input {
+                font-size: 11px;
+                padding: 6px 8px;
+                min-height: 36px;
+            }
+            
+            /* Tables mobile - Scroll horizontal */
+            .section {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -15px;
+                padding: 0 15px;
+            }
+            
+            .table {
+                min-width: 600px;
+                font-size: 10px;
+            }
+            
+            .table-header th {
+                padding: 10px 6px;
+                font-size: 11px;
+            }
+            
+            .table td {
+                padding: 8px 6px;
+                font-size: 10px;
+            }
+            
+            .amount-input,
+            .quantity-input {
+                font-size: 11px;
+                padding: 6px 4px;
+                min-height: 36px;
+            }
+            
+            .item-title-input,
+            .item-details-input {
+                font-size: 11px;
+                padding: 4px;
+                min-height: 32px;
+            }
+            
+            .item-details-input {
+                min-height: 50px;
+            }
+            
+            .category-header-row td {
+                font-size: 12px;
+                padding: 10px 6px !important;
+            }
+            
+            .category-title-input {
+                font-size: 12px;
+                padding: 4px;
+            }
+            
+            /* Indicateur de scroll */
+            .section::after {
+                content: "→ Glissez pour voir plus →";
+                display: block;
+                text-align: center;
+                color: #999;
+                font-size: 10px;
+                padding: 5px;
+                margin-top: 5px;
+            }
+            
+            .section::-webkit-scrollbar {
+                height: 6px;
+            }
+            
+            .section::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+            
+            .section::-webkit-scrollbar-thumb {
+                background: var(--primary-color);
+                border-radius: 3px;
+            }
+            
+            /* Summary box mobile */
+            .summary-box {
+                padding: 15px;
+                margin: 20px 0;
+            }
+            
+            .summary-box h4 {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            
+            .summary-table {
+                font-size: 12px;
+            }
+            
+            .summary-table td {
+                padding: 8px 5px;
+            }
+            
+            .summary-table .value {
+                width: 100px;
+                font-size: 12px;
+            }
+            
+            .summary-table .total-row {
+                font-size: 15px;
+            }
+            
+            /* Conditions et Exclusions mobile */
+            .conditions,
+            .exclusions {
+                padding: 12px;
+                margin-top: 15px;
+            }
+            
+            .conditions h4,
+            .exclusions h4 {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+            
+            .conditions ul,
+            .exclusions ul {
+                margin-left: 10px;
+            }
+            
+            .conditions li,
+            .exclusions li {
+                margin-bottom: 8px;
+                font-size: 11px;
+                line-height: 1.5;
+            }
+            
+            .condition-input,
+            .exclusion-input {
+                font-size: 11px;
+                padding: 2px 0;
+                min-height: 36px;
+            }
+            
+            .exclusions li,
+            .conditions li {
+                padding-left: 4px;
+            }
+            
+            /* Section signature mobile */
+            .signature-section {
+                padding: 20px;
+                margin-top: 20px;
+            }
+            
+            .signature-section h4 {
+                font-size: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .decision-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .decision-btn {
+                width: 100%;
+                padding: 15px 20px;
+                font-size: 13px;
+                min-height: 50px;
+            }
+            
+            .signature-form {
+                padding: 15px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .form-group input,
+            .form-group textarea {
+                font-size: 12px;
+                padding: 10px;
+                min-height: 44px;
+            }
+            
+            /* Footer mobile */
+            .footer {
+                font-size: 10px;
+                padding-top: 12px;
+                margin-top: 20px;
+            }
+            
+            /* Modal mobile */
+            .modal-content {
+                width: 95%;
+                max-height: 85vh;
+                padding: 20px;
+            }
+            
+            .modal-header h3 {
+                font-size: 16px;
+            }
+            
+            .saved-item {
+                padding: 10px;
+                margin-bottom: 6px;
+            }
+            
+            .saved-item-number {
+                font-size: 11px;
+            }
+            
+            .saved-item-details {
+                font-size: 9px;
+            }
+            
+            .saved-item-btn {
+                padding: 6px 10px;
+                font-size: 9px;
+            }
+            
+            /* Save indicator mobile */
+            .save-indicator {
+                bottom: 10px;
+                right: 10px;
+                padding: 10px 15px;
+                font-size: 11px;
+            }
+            
+            /* Amélioration de la lisibilité */
+            input:focus,
+            textarea:focus,
+            select:focus {
+                font-size: 16px !important; /* Empêche le zoom automatique sur iOS */
+            }
+        }
+        
+        /* Très petits écrans */
+        @media screen and (max-width: 375px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .control-bar {
+                padding: 12px 8px;
+            }
+            
+            .control-btn {
+                font-size: 11px;
+                padding: 10px 8px;
+            }
+            
+            .title {
+                font-size: 18px;
+            }
+            
+            .table {
+                min-width: 550px;
+            }
+            
+            .summary-table .value {
+                width: 80px;
+            }
+        }
+        
+        /* Mode paysage mobile */
+        @media screen and (max-width: 812px) and (orientation: landscape) {
+            .control-bar {
+                padding: 10px;
+            }
+            
+            .control-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .control-btn {
+                padding: 8px 10px;
+                font-size: 11px;
+                min-height: 38px;
+            }
+            
+            .settings-row {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Barre de contrôle -->
+    <div class="control-bar" id="controlBar">
+        <h3>🛠️ Contrôles de la soumission</h3>
+        <div class="control-buttons">
+            <button class="control-btn success" onclick="APP.calculateAll()" title="Recalculer tous les montants">
+                💰 Recalculer tout
+            </button>
+            <button class="control-btn" onclick="APP.toggleAllSections()" title="Afficher ou masquer toutes les sections">
+                👁️ Afficher/Masquer tout
+            </button>
+            <button class="control-btn" onclick="APP.toggleEmptySections()" title="Masquer automatiquement les sections sans prix">🔍 Masquer sections vides</button>
+            <button class="control-btn" onclick="APP.saveData()" title="Sauvegarder dans le navigateur">
+                💾 Sauvegarder
+            </button>
+            <button class="control-btn success" onclick="APP.saveAs()" title="Enregistrer sous un nouveau numéro">
+                💾 Enregistrer sous
+            </button>
+            <button class="control-btn" onclick="APP.showSavedList()" title="Voir et charger les soumissions sauvegardées">
+                📂 Charger
+            </button>
+            <button class="control-btn danger" onclick="APP.resetAll()" title="Réinitialiser tous les champs">
+                🔄 Réinitialiser
+            </button>
+            <button class="control-btn" onclick="APP.clearCache()" title="Vider le cache du navigateur" style="background: rgba(239, 68, 68, 0.6);">
+                🗑️ Vider Cache
+            </button>
+            <button class="control-btn" onclick="APP.resetTexts()" title="Réinitialiser tous les textes à leurs valeurs par défaut">
+                📝 Réinitialiser Textes
+            </button>
+            <button class="control-btn" onclick="window.print()" title="Imprimer ou enregistrer en PDF">
+                🖨️ Imprimer
+            </button>
+            <button class="control-btn" onclick="APP.exportData()" title="Exporter les données au format JSON">
+                ⬇️ Exporter JSON
+            </button>
+            <button class="control-btn" onclick="APP.exportHTML()" title="Télécharger une copie HTML complète">
+                📄 Télécharger HTML
+            </button>
+            <button class="control-btn" onclick="APP.importData()" title="Importer des données depuis un fichier JSON">
+                ⬆️ Importer
+            </button>
+        </div>
+        <div class="settings-row">
+            <label>
+                💼 Admin: <input type="number" id="adminRate" value="15" min="0" max="20" step="0.5" onchange="APP.updateAdminRate()">%
+                <span id="adminPercent" style="display:none;">15.0</span>
+            </label>
+            <label>
+                ⚠️ Contingences: <input type="number" id="contingencyRate" value="0" min="0" max="25" step="0.5" onchange="APP.updateContingencyRate()">%
+                <span id="contingencyPercent" style="display:none;">0.0</span>
+            </label>
+            <label>
+                💰 Profit: <input type="number" id="profitRate" value="0" min="0" max="50" step="0.5" onchange="APP.updateProfitRate()">%
+                <span id="profitPercent" style="display:none;">0.0</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Conteneur principal -->
+    <div class="container">
+        <!-- Header avec logo et informations de l'entreprise -->
+        <div class="header">
+            <div class="company-info">
+                <div class="company-name">
+                    <input type="text" id="nomEntreprise" value="Groupe Perreault" style="border: none; background: transparent;" placeholder="Nom de l'entreprise" onchange="APP.syncCompanyName(event); APP.autoSave()">
+                </div>
+                <div><input type="text" id="adresseEntreprise" value="123, rue Principale" style="border: none; background: transparent; width: 100%;" placeholder="Adresse" onchange="APP.autoSave()"></div>
+                <div>
+                    <input type="text" id="villeEntreprise" value="Montréal (Québec)" style="border: none; background: transparent; width: 70%; display: inline;" placeholder="Ville, Province" onchange="APP.autoSave()">
+                    <input type="text" id="codePostalEntreprise" value="H1A 1A1" style="border: none; background: transparent; width: 28%; display: inline;" placeholder="Code postal" onchange="APP.autoSave()">
+                </div>
+                <div>
+                    <span>Tél: </span>
+                    <input type="text" id="telEntreprise" value="(514) 555-0000" style="border: none; background: transparent; width: 100px; display: inline;" placeholder="Téléphone" onchange="APP.autoSave()">
+                    <span> | Cell: </span>
+                    <input type="text" id="cellEntreprise" value="(514) 555-1111" style="border: none; background: transparent; width: 100px; display: inline;" placeholder="Cellulaire" onchange="APP.autoSave()">
+                </div>
+                <div>
+                    <input type="text" id="emailEntreprise" value="info@groupeperreault.com" style="border: none; background: transparent; width: 100%;" placeholder="Courriel" onchange="APP.autoSave()">
+                </div>
+                <div style="font-size: 9px; margin-top: 3px;">
+                    <span>RBQ: </span>
+                    <input type="text" id="rbqEntreprise" value="1234-5678-90" style="border: none; background: transparent; width: 80px; font-size: 9px; display: inline;" placeholder="# RBQ" onchange="APP.autoSave()">
+                    <span> | NEQ: </span>
+                    <input type="text" id="neqEntreprise" value="1234567890" style="border: none; background: transparent; width: 80px; font-size: 9px; display: inline;" placeholder="# NEQ" onchange="APP.autoSave()">
+                </div>
+                <div style="font-size: 9px;">
+                    <span>TPS: </span>
+                    <input type="text" id="tpsEntreprise" value="123456789RT0001" style="border: none; background: transparent; width: 110px; font-size: 9px; display: inline;" placeholder="# TPS" onchange="APP.updateTaxNumbers(); APP.autoSave()">
+                </div>
+                <div style="font-size: 9px;">
+                    <span>TVQ: </span>
+                    <input type="text" id="tvqEntreprise" value="1234567890TQ0001" style="border: none; background: transparent; width: 110px; font-size: 9px; display: inline;" placeholder="# TVQ" onchange="APP.updateTaxNumbers(); APP.autoSave()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Titre -->
+        <h1 class="title">SOUMISSION BUDGÉTAIRE - REVÊTEMENT MS1 ARCHITECTURAL</h1>
+        <div class="subtitle">
+            <span style="margin-right: 20px;"><strong>N° de soumission:</strong> 
+                <input type="text" id="numeroSoumission" class="header-input" value="2025-002-MS1" style="width: 120px;" placeholder="Numéro" onchange="APP.autoSave()">
+            </span>
+            <span><strong>Date:</strong> 
+                <input type="date" id="dateSoumission" class="header-input date-input" value="2025-08-22" onchange="APP.autoSave()">
+            </span>
+        </div>
+
+        <!-- Informations du projet -->
+        <div class="project-info">
+            <div class="info-section">
+                <h4>Client</h4>
+                <p><strong>Adresse: </strong><input type="text" id="adresseClient" class="info-input inline" value="430, Chemin de la Presqu'île" placeholder="Adresse complète" onchange="APP.autoSave()"></p>
+                <p><strong>Ville: </strong><input type="text" id="villeClient" class="info-input inline" value="Repentigny" placeholder="Ville" style="width: 70%;" onchange="APP.autoSave()"></p>
+                <p><strong>Code postal: </strong><input type="text" id="codePostalClient" class="info-input inline" placeholder="J6A 8C8" style="width: 60px;" onchange="APP.autoSave()"></p>
+            </div>
+            <div class="info-section">
+                <h4>Projet</h4>
+                <p><strong>Description: </strong><input type="text" id="nomProjet" class="info-input inline" value="Installation revêtement MS1" placeholder="Description du projet" onchange="APP.autoSave()"></p>
+                <p><strong>Type: </strong><input type="text" id="typeConstruction" class="info-input inline" value="Maison bi-générationnelle" placeholder="Type de bâtiment" onchange="APP.autoSave()"></p>
+                <p><strong>Superficie: </strong><input type="text" id="superficie" class="info-input inline" value="3,844 pi²" placeholder="0 pi²" style="width: 80px;" onchange="APP.autoSave()"></p>
+                <p><strong>Matériau: </strong><input type="text" id="typeFondation" class="info-input inline" value="Acier galvanisé calibre 24" placeholder="Type de matériau" style="width: 150px;" onchange="APP.autoSave()"></p>
+            </div>
+            <div class="info-section">
+                <h4>Contact</h4>
+                <p><strong>Nom: </strong><input type="text" id="nomContact" class="info-input inline" placeholder="Nom du contact" onchange="APP.autoSave()"></p>
+                <p><strong>Tél: </strong><input type="text" id="telContact" class="info-input inline" placeholder="(514) 000-0000" style="width: 90px;" onchange="APP.autoSave()"></p>
+                <p><strong>Cell: </strong><input type="text" id="cellContact" class="info-input inline" placeholder="(514) 000-0000" style="width: 90px;" onchange="APP.autoSave()"></p>
+                <p><strong>Courriel: </strong><input type="email" id="emailContact" class="info-input inline" placeholder="email@exemple.com" onchange="APP.autoSave()"></p>
+            </div>
+            <div class="info-section">
+                <h4>Responsables</h4>
+                <p><strong>Chargé de projet: </strong><input type="text" id="chargeProjet" class="info-input inline" placeholder="Nom du chargé de projet" onchange="APP.autoSave()"></p>
+                <p><strong>Préparé par: </strong><input type="text" id="preparePar" class="info-input inline" placeholder="Nom du préparateur" onchange="APP.autoSave()"></p>
+                <p><strong>Validité: </strong><input type="text" class="info-input inline" value="30 jours" style="width: 60px;" onchange="APP.autoSave()"></p>
+            </div>
+        </div>
+
+        <!-- Section A - MATÉRIAUX - SYSTÈME MS1 -->
+        <div class="section" data-section="0">
+            <table class="table">
+                <thead class="table-header">
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantité</th>
+                        <th>Coût unitaire</th>
+                        <th>Coût total</th>
+                        <th title="Afficher/Masquer les items">☑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="category-header-row">
+                        <td colspan="5"><input type="text" class="category-title-input" id="category-0" value="A. MATÉRIAUX - SYSTÈME MS1" placeholder="Titre de la catégorie" onchange="APP.updateRecapLabels(); APP.autoSave()"></td>
+                    </tr>
+                    <!-- REVÊTEMENT PRINCIPAL -->
+                    <tr class="section-row" data-item="0-1">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-1" value="Panneaux MS1 12&quot; acier prépeint" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-1" placeholder="Description détaillée" onchange="APP.autoSave()">Couleur au choix parmi 35 couleurs disponibles</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-1" value="4228" min="0" max="99999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-1" value="11.50" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-1">48 622,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <!-- ACCESSOIRES MS1 -->
+                    <tr class="section-row" data-item="0-2">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-2" value="Coins extérieurs MS1" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-2" placeholder="Description détaillée" onchange="APP.autoSave()">Profilés d'angle extérieur coordonnés</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-2" value="200" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-2" value="28" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-2">5 600,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="0-3">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-3" value="Coins intérieurs MS1" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-3" placeholder="Description détaillée" onchange="APP.autoSave()">Profilés d'angle intérieur coordonnés</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-3" value="120" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-3" value="24" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-3">2 880,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="0-4">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-4" value="Moulures en J métalliques" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-4" placeholder="Description détaillée" onchange="APP.autoSave()">Moulures de finition en J pour contours</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-4" value="500" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-4" value="18" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-4">9 000,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="0-5">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-5" value="Moulures de départ MS1" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-5" placeholder="Description détaillée" onchange="APP.autoSave()">Profilés de départ pour base du revêtement</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-5" value="180" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-5" value="20" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-5">3 600,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="0-6">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-6" value="Solins architecturaux" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-6" placeholder="Description détaillée" onchange="APP.autoSave()">Solins de finition pour étanchéité</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-6" value="300" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-6" value="25" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-6">7 500,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <!-- SYSTÈME VENTILATION -->
+                    <tr class="section-row" data-item="0-7">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-7" value="Rails ventilation continue" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-7" placeholder="Description détaillée" onchange="APP.autoSave()">Système de ventilation continue intégré</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-7" value="180" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-7" value="15" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-7">2 700,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="0-8">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-8" value="Grilles perforées MS1" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-8" placeholder="Description détaillée" onchange="APP.autoSave()">Grilles de ventilation perforées coordonnées</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-8" value="20" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-8" value="45" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-8">900,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <!-- SOFFITES/FASCIAS -->
+                    <tr class="section-row" data-item="0-9">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-9" value="Soffites MS1 perforés" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-9" placeholder="Description détaillée" onchange="APP.autoSave()">Soffites perforés pour ventilation de l'entretoit</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-9" value="280" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-9" value="12" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-9">3 360,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="0-10">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="0-10" value="Fascias MS1 coordonnés" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="0-10" placeholder="Description détaillée" onchange="APP.autoSave()">Fascias métalliques coordonnés au revêtement</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="0-10" value="240" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="0-10" value="14" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="0-10">3 360,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="subtotal-row">
+                        <td colspan="3">Sous-total Section A</td>
+                        <td class="amount-display" data-subtotal="0">87 522,00 $</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section B - SYSTÈME D'ENVELOPPE PREMIUM -->
+        <div class="section" data-section="1">
+            <table class="table">
+                <thead class="table-header">
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantité</th>
+                        <th>Coût unitaire</th>
+                        <th>Coût total</th>
+                        <th title="Afficher/Masquer les items">☑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="category-header-row">
+                        <td colspan="5"><input type="text" class="category-title-input" id="category-1" value="B. SYSTÈME D'ENVELOPPE PREMIUM" placeholder="Titre de la catégorie" onchange="APP.updateRecapLabels(); APP.autoSave()"></td>
+                    </tr>
+                    <tr class="section-row" data-item="1-1">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="1-1" value="Membrane haute performance" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="1-1" placeholder="Description détaillée" onchange="APP.autoSave()">Membrane pare-air/pare-vapeur haute performance</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="1-1" value="15" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="1-1" value="220" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="1-1">3 300,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="1-2">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="1-2" value="Pare-vapeur intelligent" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="1-2" placeholder="Description détaillée" onchange="APP.autoSave()">Pare-vapeur intelligent à perméabilité variable</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="1-2" value="10" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="1-2" value="180" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="1-2">1 800,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="1-3">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="1-3" value="Structure Z-Bar galvanisée" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="1-3" placeholder="Description détaillée" onchange="APP.autoSave()">Structure de support Z-Bar en acier galvanisé</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="1-3" value="400" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="1-3" value="18" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="1-3">7 200,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="1-4">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="1-4" value="Isolant laine minérale 3&quot;" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="1-4" placeholder="Description détaillée" onchange="APP.autoSave()">Isolant rigide en laine minérale 3 pouces R-12</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="1-4" value="50" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="1-4" value="85" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="1-4">4 250,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="subtotal-row">
+                        <td colspan="3">Sous-total Section B</td>
+                        <td class="amount-display" data-subtotal="1">16 550,00 $</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section C - QUINCAILLERIE SPÉCIALISÉE -->
+        <div class="section" data-section="2">
+            <table class="table">
+                <thead class="table-header">
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantité</th>
+                        <th>Coût unitaire</th>
+                        <th>Coût total</th>
+                        <th title="Afficher/Masquer les items">☑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="category-header-row">
+                        <td colspan="5"><input type="text" class="category-title-input" id="category-2" value="C. QUINCAILLERIE SPÉCIALISÉE" placeholder="Titre de la catégorie" onchange="APP.updateRecapLabels(); APP.autoSave()"></td>
+                    </tr>
+                    <tr class="section-row" data-item="2-1">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="2-1" value="Vis auto-perceuses colorées" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="2-1" placeholder="Description détaillée" onchange="APP.autoSave()">Vis auto-perceuses avec tête colorée coordonnée</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="2-1" value="15" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="2-1" value="40" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="2-1">600,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="2-2">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="2-2" value="Attaches cachées MS1" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="2-2" placeholder="Description détaillée" onchange="APP.autoSave()">Système d'attaches cachées pour installation invisible</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="2-2" value="500" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="2-2" value="1.50" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="2-2">750,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="2-3">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="2-3" value="Rivets structuraux" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="2-3" placeholder="Description détaillée" onchange="APP.autoSave()">Rivets structuraux pour assemblages renforcés</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="2-3" value="10" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="2-3" value="45" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="2-3">450,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="2-4">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="2-4" value="Scellant architectural" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="2-4" placeholder="Description détaillée" onchange="APP.autoSave()">Scellant architectural haute performance couleur coordonnée</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="2-4" value="30" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="2-4" value="22" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="2-4">660,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="subtotal-row">
+                        <td colspan="3">Sous-total Section C</td>
+                        <td class="amount-display" data-subtotal="2">2 460,00 $</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section D - MAIN-D'ŒUVRE SPÉCIALISÉE -->
+        <div class="section" data-section="3">
+            <table class="table">
+                <thead class="table-header">
+                    <tr>
+                        <th>Item</th>
+                        <th>Heures</th>
+                        <th>Taux horaire</th>
+                        <th>Coût total</th>
+                        <th title="Afficher/Masquer les items">☑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="category-header-row">
+                        <td colspan="5"><input type="text" class="category-title-input" id="category-3" value="D. MAIN-D'ŒUVRE SPÉCIALISÉE" placeholder="Titre de la catégorie" onchange="APP.updateRecapLabels(); APP.autoSave()"></td>
+                    </tr>
+                    <tr class="section-row" data-item="3-1">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="3-1" value="Installation système MS1" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="3-1" placeholder="Description détaillée" onchange="APP.autoSave()">Installation complète du revêtement MS1 par équipe spécialisée</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="3-1" value="480" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="3-1" value="85" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="3-1">40 800,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="section-row" data-item="3-2">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="3-2" value="Travail de précision métal" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="3-2" placeholder="Description détaillée" onchange="APP.autoSave()">Travail de précision pour découpes, ajustements et finitions</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="3-2" value="120" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="3-2" value="85" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="3-2">10 200,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="subtotal-row">
+                        <td colspan="3">Sous-total Section D</td>
+                        <td class="amount-display" data-subtotal="3">51 000,00 $</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section E - ÉQUIPEMENT SPÉCIALISÉ -->
+        <div class="section" data-section="4">
+            <table class="table">
+                <thead class="table-header">
+                    <tr>
+                        <th>Item</th>
+                        <th>Durée</th>
+                        <th>Prix/semaine</th>
+                        <th>Coût total</th>
+                        <th title="Afficher/Masquer les items">☑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="category-header-row">
+                        <td colspan="5"><input type="text" class="category-title-input" id="category-4" value="E. ÉQUIPEMENT SPÉCIALISÉ" placeholder="Titre de la catégorie" onchange="APP.updateRecapLabels(); APP.autoSave()"></td>
+                    </tr>
+                    <tr class="section-row" data-item="4-1">
+                        <td class="item-description">
+                            <input type="text" class="item-title-input" data-row="4-1" value="Équipement coupe et pliage" placeholder="Titre de l'item" onchange="APP.autoSave()">
+                            <textarea class="item-details-input" data-row="4-1" placeholder="Description détaillée" onchange="APP.autoSave()">Location d'équipement spécialisé pour coupe et pliage du métal sur place</textarea>
+                        </td>
+                        <td><input type="number" class="quantity-input" data-row="4-1" value="4" min="0" max="9999" step="1" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td><input type="number" class="amount-input" data-row="4-1" value="2500" min="0" max="99999999" step="0.01" onchange="APP.calculateRowWithQuantity(this)"></td>
+                        <td class="amount-display" data-total="4-1">10 000,00 $</td>
+                        <td><input type="checkbox" class="hide-checkbox" checked onchange="APP.toggleRow(this)"></td>
+                    </tr>
+                    <tr class="subtotal-row">
+                        <td colspan="3">Sous-total Section E</td>
+                        <td class="amount-display" data-subtotal="4">10 000,00 $</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Récapitulatif des coûts -->
+        <div class="summary-box">
+            <h4>📊 RÉCAPITULATIF DES COÛTS</h4>
+            <table class="summary-table">
+                <tbody>
+                <tr>
+                    <td class="label"><span id="recap-label-0">A. MATÉRIAUX - SYSTÈME MS1</span>:</td>
+                    <td class="value" id="recap-0">87 522,00 $</td>
+                </tr>
+                <tr>
+                    <td class="label"><span id="recap-label-1">B. SYSTÈME D'ENVELOPPE PREMIUM</span>:</td>
+                    <td class="value" id="recap-1">16 550,00 $</td>
+                </tr>
+                <tr>
+                    <td class="label"><span id="recap-label-2">C. QUINCAILLERIE SPÉCIALISÉE</span>:</td>
+                    <td class="value" id="recap-2">2 460,00 $</td>
+                </tr>
+                <tr>
+                    <td class="label"><span id="recap-label-3">D. MAIN-D'ŒUVRE SPÉCIALISÉE</span>:</td>
+                    <td class="value" id="recap-3">51 000,00 $</td>
+                </tr>
+                <tr>
+                    <td class="label"><span id="recap-label-4">E. ÉQUIPEMENT SPÉCIALISÉ</span>:</td>
+                    <td class="value" id="recap-4">10 000,00 $</td>
+                </tr>
+                <tr style="border-top: 1px solid #ddd; font-weight: bold;">
+                    <td class="label">TOTAL DES TRAVAUX DE BASE:</td>
+                    <td class="value" id="totalBase">167 532,00 $</td>
+                </tr>
+                <tr>
+                    <td class="label">Administration et profit (<span id="adminPercent">15</span>%):</td>
+                    <td class="value" id="totalAdmin">25 129,80 $</td>
+                </tr>
+                <tr>
+                    <td class="label">Contingences (<span id="contingencyPercent">0</span>%):</td>
+                    <td class="value" id="totalContingency">0,00 $</td>
+                </tr>
+                <tr>
+                    <td class="label">Profit de l'entrepreneur (<span id="profitPercent">0</span>%):</td>
+                    <td class="value" id="totalProfit">0,00 $</td>
+                </tr>
+                <tr style="border-top: 1px solid var(--primary-color); font-weight: bold;">
+                    <td class="label">Total avant taxes:</td>
+                    <td class="value" id="totalAvantTaxes">192 661,80 $</td>
+                </tr>
+                <tr>
+                    <td class="label">TPS (5%) - <span id="tpsDisplay">123456789RT0001</span>:</td>
+                    <td class="value" id="totalTPS">9 633,09 $</td>
+                </tr>
+                <tr>
+                    <td class="label">TVQ (9.975%) - <span id="tvqDisplay">1234567890TQ0001</span>:</td>
+                    <td class="value" id="totalTVQ">19 217,92 $</td>
+                </tr>
+                <tr class="total-row">
+                    <td class="label"><strong>INVESTISSEMENT TOTAL:</strong></td>
+                    <td class="value"><strong id="totalFinal">221 512,81 $</strong></td>
+                </tr>
+                <tr style="border-top: 1px solid #ddd; padding-top: 10px;">
+                    <td class="label" style="padding-top: 10px;"><strong>Prix au pi²:</strong></td>
+                    <td class="value" style="padding-top: 10px;"><strong>57,63 $/pi²</strong></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section Garanties MS1 -->
+        <div class="warranty-section">
+            <h4>🛡️ GARANTIES MS1 ARCHITECTURAL</h4>
+            <ul>
+                <li><textarea class="exclusion-input" onchange="APP.autoSave()">Garantie manufacturier : 40 ans sur le produit</textarea></li>
+                <li><textarea class="exclusion-input" onchange="APP.autoSave()">Garantie peinture : 30 ans contre décoloration et écaillement</textarea></li>
+                <li><textarea class="exclusion-input" onchange="APP.autoSave()">Garantie installation : 10 ans main-d'œuvre</textarea></li>
+                <li><textarea class="exclusion-input" onchange="APP.autoSave()">Garantie perforation : À vie contre la perforation par corrosion</textarea></li>
+            </ul>
+        </div>
+
+        <!-- Conditions et Exclusions -->
+        <div class="conditions">
+            <h4>Conditions et Modalités</h4>
+            <ul>
+                <li><span class="condition-label">Validité:</span> <textarea class="condition-input" id="condition-validite" onchange="APP.autoSave()">Cette soumission est valide pour 30 jours à partir de la date d'émission.</textarea></li>
+                <li><span class="condition-label">Délai d'exécution:</span> <textarea class="condition-input" id="condition-delai" onchange="APP.autoSave()">4 semaines après l'obtention des permis et signature du contrat.</textarea></li>
+                <li><span class="condition-label">Modalités de paiement:</span> <textarea class="condition-input" id="condition-paiement" onchange="APP.autoSave()">30% à la signature, 40% mi-projet, 30% à la fin des travaux.</textarea></li>
+                <li><span class="condition-label">Garanties:</span> <textarea class="condition-input" id="condition-garanties" onchange="APP.autoSave()">Selon les spécifications du manufacturier MS1 et normes RBQ.</textarea></li>
+                <li><span class="condition-label">Site accessible:</span> <textarea class="condition-input" id="condition-augmentation" onchange="APP.autoSave()">Site accessible et dégagé requis. Échafaudages inclus.</textarea></li>
+                <li><span class="condition-label">Conditions météo:</span> <textarea class="condition-input" id="condition-sol" onchange="APP.autoSave()">Installation par temps sec uniquement. Délais possibles selon météo.</textarea></li>
+                <li><span class="condition-label">Modifications:</span> <textarea class="condition-input" id="condition-modifications" onchange="APP.autoSave()">Tout changement après signature fera l'objet d'un ordre de changement écrit avec ajustement de prix.</textarea></li>
+            </ul>
+        </div>
+
+        <div class="exclusions">
+            <h4>Exclusions principales</h4>
+            <ul>
+                <li><textarea class="exclusion-input" id="exclusion-1" onchange="APP.autoSave()">Permis de construction (responsabilité du client)</textarea></li>
+                <li><textarea class="exclusion-input" id="exclusion-2" onchange="APP.autoSave()">Enlèvement et disposition du revêtement existant (si applicable)</textarea></li>
+                <li><textarea class="exclusion-input" id="exclusion-3" onchange="APP.autoSave()">Réparations structurales non visibles avant démolition</textarea></li>
+                <li><textarea class="exclusion-input" id="exclusion-4" onchange="APP.autoSave()">Travaux électriques ou de plomberie</textarea></li>
+                <li><textarea class="exclusion-input" id="exclusion-5" onchange="APP.autoSave()">Peinture ou teinture additionnelle (fini d'usine inclus)</textarea></li>
+                <li><textarea class="exclusion-input" id="exclusion-6" onchange="APP.autoSave()">Modifications aux portes et fenêtres existantes</textarea></li>
+                <li><textarea class="exclusion-input" id="exclusion-7" onchange="APP.autoSave()">Aménagement paysager ou réparation de terrain</textarea></li>
+                <li><textarea class="exclusion-input" id="exclusion-8" onchange="APP.autoSave()">Travaux supplémentaires découverts pendant l'installation</textarea></li>
+            </ul>
+        </div>
+
+        <!-- Section Pièces jointes -->
+        <div class="attachments-section" id="attachmentsSection">
+            <h4>📎 PIÈCES JOINTES</h4>
+            
+            <div class="attachment-dropzone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="dropzone-icon">📁</div>
+                <div class="dropzone-text">
+                    Glissez-déposez vos fichiers ici ou cliquez pour parcourir
+                </div>
+                <label for="fileInput" class="file-input-label" onclick="event.stopPropagation()">
+                    Choisir des fichiers
+                </label>
+                <input type="file" id="fileInput" multiple accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.txt,.rtf,.md,.jpg,.jpeg,.png,.gif,.bmp,.webp,.py,.js,.html,.htm,.css,.json,.xml,.yaml,.yml,.mp3,.wav,.m4a,.ogg,.flac,.aac" onchange="APP.handleFileSelect(event)">
+                <div class="supported-formats">
+                    Formats supportés: PDF, Word, Excel, Images, Audio, Code et plus...
+                </div>
+            </div>
+            
+            <div class="attachments-list" id="attachmentsList"><div style="text-align: center; color: #999; padding: 20px; font-size: 11px;">Aucun fichier joint</div></div>
+        </div>
+
+        <!-- Modal de prévisualisation -->
+        <div class="file-preview-modal" id="filePreviewModal">
+            <div class="preview-content" id="previewContent">
+                <button class="preview-close" onclick="APP.closePreview()">×</button>
+                <!-- Le contenu de la prévisualisation apparaîtra ici -->
+            </div>
+        </div>
+
+        <!-- Section Signature Client -->
+        <div class="signature-section" id="signatureSection">
+            <h4>📝 DÉCISION DU CLIENT</h4>
+            
+            <div class="decision-buttons" id="decisionButtons">
+                <button class="decision-btn btn-accept" onclick="APP.showSignatureForm('accept')">
+                    ✅ ACCEPTER LA SOUMISSION
+                </button>
+                <button class="decision-btn btn-refuse" onclick="APP.showSignatureForm('refuse')">
+                    ❌ REFUSER LA SOUMISSION
+                </button>
+            </div>
+
+            <div class="signature-form" id="signatureForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientName">Nom complet *</label>
+                        <input type="text" id="clientName" placeholder="Prénom et nom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientTitle">Titre/Fonction</label>
+                        <input type="text" id="clientTitle" placeholder="Ex: Propriétaire, Gestionnaire">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientEmail">Courriel *</label>
+                        <input type="email" id="clientEmail" placeholder="exemple@domaine.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientPhone">Téléphone</label>
+                        <input type="tel" id="clientPhone" placeholder="(514) 123-4567">
+                    </div>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="clientComments">Commentaires / Conditions</label>
+                    <textarea id="clientComments" placeholder="Ajoutez vos commentaires, conditions ou demandes de modifications..."></textarea>
+                </div>
+                <div style="text-align: center;">
+                    <button class="confirm-action-btn" id="confirmBtn" onclick="APP.confirmDecision()">
+                        CONFIRMER MA DÉCISION
+                    </button>
+                </div>
+            </div>
+
+            <div class="confirmation-message" id="confirmationMessage">
+                <div id="confirmationText"></div>
+                <div class="signature-timestamp" id="signatureTimestamp"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Soumission préparée par :</strong></p>
+            <p style="margin-top: 10px;">
+                <strong><input type="text" class="info-input inline" id="preparePar" placeholder="[Nom], [Titre]" style="width: 200px; text-align: center;" maxlength="100" onchange="APP.autoSave()"></strong><br>
+                <input type="text" id="nomEntrepriseFooter" value="Groupe Perreault" style="border: none; background: transparent; text-align: center; width: 200px; font-weight: inherit;" placeholder="Nom de l'entreprise" maxlength="100" onchange="APP.autoSave()">
+            </p>
+            <p style="margin-top: 10px;">
+                Pour information: 
+                <input type="text" class="inline" id="telInfoFooter" value="(514) 555-0000" style="border: none; background: transparent; width: 100px;" placeholder="Téléphone" maxlength="20" onchange="APP.autoSave()">
+            </p>
+            <p style="margin-top: 12px; font-weight: bold;">
+                <input type="text" id="messageConfiance" value="Merci de votre confiance!" style="border: none; background: transparent; text-align: center; width: 300px; font-weight: bold;" placeholder="Message de remerciement" maxlength="100" onchange="APP.autoSave()">
+            </p>
+            <p style="margin-top: 12px;">
+                <strong>Assurance responsabilité: 2M$</strong>
+            </p>
+            <p style="margin-top: 15px; font-size: 8px; color: #888; line-height: 1.3;">
+                Cette soumission est confidentielle et demeure la propriété de <input type="text" class="inline" id="nomEntrepriseCopyright1" value="Groupe Perreault" style="border: none; background: transparent; font-size: 8px; color: #888; width: 120px;" placeholder="Nom entreprise" maxlength="100" onchange="APP.autoSave()">.
+            </p>
+            <p style="margin-top: 3px; font-size: 8px; color: #888;">
+                © <input type="text" class="inline" id="anneeCopyright" value="2025" style="border: none; background: transparent; font-size: 8px; color: #888; width: 35px;" placeholder="Année" maxlength="4" onchange="APP.autoSave()"> <input type="text" class="inline" id="nomEntrepriseCopyright2" value="Groupe Perreault" style="border: none; background: transparent; font-size: 8px; color: #888; width: 120px;" placeholder="Nom entreprise" maxlength="100" onchange="APP.autoSave()"> - Tous droits réservés.
+            </p>
+            <p style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #e5e7eb; font-size: 9px; color: #666; text-align: center;">
+                Document généré le <span id="dateGeneration"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Save Indicator -->
+    <div class="save-indicator" id="saveIndicator">
+        <span id="saveMessage">✔ Sauvegarde automatique</span>
+    </div>
+
+    <!-- Modal pour la liste des sauvegardes -->
+    <div class="modal" id="savedModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📂 Soumissions sauvegardées</h3>
+                <button class="modal-close" onclick="APP.closeSavedList()">×</button>
+            </div>
+            <ul class="saved-list" id="savedList">
+                <!-- La liste sera générée dynamiquement -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        'use strict';
+
+        // Configuration et constantes
+        const CONFIG = {
+            LIMITS: {
+                MIN_AMOUNT: 0,
+                MAX_AMOUNT: 99999999,
+                MIN_RATE: 0,
+                MAX_PROFIT_RATE: 50,
+                MAX_ADMIN_RATE: 20,
+                MAX_CONTINGENCY_RATE: 25,
+                AUTO_SAVE_DELAY: 30000,
+                SAVE_THROTTLE: 1000,
+                MAX_FILE_SIZE: 5000000 // 5MB
+            },
+            TAXES: {
+                TPS: 0.05,
+                TVQ: 0.09975
+            },
+            DEFAULT_RATES: {
+                ADMIN: 0.15,
+                CONTINGENCY: 0.00,
+                PROFIT: 0.00
+            }
+        };
+
+        // Application principale
+        const APP = {
+            // État de l'application
+            state: {
+                rates: {
+                    admin: CONFIG.DEFAULT_RATES.ADMIN,
+                    contingency: CONFIG.DEFAULT_RATES.CONTINGENCY,
+                    profit: CONFIG.DEFAULT_RATES.PROFIT
+                },
+                lastSaveTime: 0,
+                isDirty: false,
+                autoSaveTimer: null,
+                isLoading: false,
+                hideEmptySections: false
+            },
+
+            // Tableau pour stocker les pièces jointes
+            attachments: [],
+
+            // Utilitaires
+            utils: {
+                // Échapper les caractères HTML
+                escapeHtml(text) {
+                    const div = document.createElement('div');
+                    div.textContent = text || '';
+                    return div.innerHTML;
+                },
+
+                // Valider un nombre
+                validateNumber(value, min = CONFIG.LIMITS.MIN_AMOUNT, max = CONFIG.LIMITS.MAX_AMOUNT) {
+                    const num = parseFloat(value) || 0;
+                    return Math.max(min, Math.min(max, num));
+                },
+
+                // Formater la devise
+                formatCurrency(amount) {
+                    return new Intl.NumberFormat('fr-CA', {
+                        style: 'currency',
+                        currency: 'CAD',
+                        minimumFractionDigits: 2
+                    }).format(amount).replace('CA', '');
+                },
+
+                // Parser la devise
+                parseCurrency(text) {
+                    if (!text) return 0;
+                    const cleaned = text.toString().replace(/[^\d,-]/g, '').replace(',', '.');
+                    return Math.round(parseFloat(cleaned) * 100) / 100 || 0;
+                },
+
+                // Vérifier localStorage
+                isLocalStorageAvailable() {
+                    try {
+                        const test = '__storage_test__';
+                        localStorage.setItem(test, test);
+                        localStorage.removeItem(test);
+                        return true;
+                    } catch(e) {
+                        return false;
+                    }
+                },
+
+                // Afficher le loading
+                showLoading(show = true) {
+                    const overlay = document.getElementById('loadingOverlay');
+                    if (overlay) {
+                        overlay.classList.toggle('show', show);
+                    }
+                    APP.state.isLoading = show;
+                },
+
+                // Afficher notification
+                showNotification(message, isError = false) {
+                    const indicator = document.getElementById('saveIndicator');
+                    const messageEl = document.getElementById('saveMessage');
+                    
+                    if (indicator && messageEl) {
+                        messageEl.textContent = message;
+                        indicator.classList.toggle('error', isError);
+                        indicator.classList.add('show');
+                        
+                        setTimeout(() => {
+                            indicator.classList.remove('show');
+                            indicator.classList.remove('error');
+                        }, 2000);
+                    }
+                },
+
+                // Debounce function
+                debounce(func, wait) {
+                    let timeout;
+                    return function executedFunction(...args) {
+                        const later = () => {
+                            clearTimeout(timeout);
+                            func(...args);
+                        };
+                        clearTimeout(timeout);
+                        timeout = setTimeout(later, wait);
+                    };
+                }
+            },
+
+            // Initialisation
+            init() {
+                try {
+                    // Vérifier localStorage
+                    if (!APP.utils.isLocalStorageAvailable()) {
+                        console.warn('LocalStorage non disponible');
+                        APP.utils.showNotification('⚠️ Stockage local non disponible', true);
+                    }
+
+                    // Vérifier si c'est une nouvelle version du template
+                    const savedVersion = localStorage.getItem('templateVersion');
+                    if (savedVersion !== 'MS1_V1_2025') {
+                        // C'est une nouvelle version, vider le cache
+                        localStorage.clear();
+                        localStorage.setItem('templateVersion', 'MS1_V1_2025');
+                        console.log('Cache vidé pour la nouvelle version du template');
+                    }
+
+                    // Charger les données
+                    APP.loadData();
+                    
+                    // Calculer tout
+                    APP.calculateAll();
+                    
+                    // Mettre à jour l'affichage des numéros de taxes
+                    APP.updateTaxNumbers();
+                    
+                    // Configurer l'auto-save
+                    APP.state.autoSaveTimer = setInterval(() => {
+                        if (APP.state.isDirty) {
+                            APP.autoSave();
+                            APP.state.isDirty = false;
+                        }
+                    }, CONFIG.LIMITS.AUTO_SAVE_DELAY);
+
+                    // Event listener pour quitter la page
+                    window.addEventListener('beforeunload', (e) => {
+                        if (APP.state.isDirty) {
+                            APP.autoSave();
+                            e.preventDefault();
+                            e.returnValue = 'Des modifications non sauvegardées seront perdues.';
+                        }
+                    });
+
+                    // Event listeners pour les champs d'entreprise
+                    document.getElementById('tpsEntreprise')?.addEventListener('change', APP.updateTaxNumbers);
+                    document.getElementById('tvqEntreprise')?.addEventListener('change', APP.updateTaxNumbers);
+                    
+                    // Synchroniser le nom de l'entreprise
+                    document.getElementById('nomEntreprise')?.addEventListener('change', APP.syncCompanyName);
+                    document.getElementById('nomEntrepriseFooter')?.addEventListener('change', APP.syncCompanyName);
+                    document.getElementById('nomEntrepriseCopyright1')?.addEventListener('change', APP.syncCompanyName);
+                    document.getElementById('nomEntrepriseCopyright2')?.addEventListener('change', APP.syncCompanyName);
+
+                    // Mettre à jour la date de génération
+                    const dateEl = document.getElementById('dateGeneration');
+                    if (dateEl) {
+                        dateEl.textContent = new Date().toLocaleDateString('fr-CA');
+                    }
+
+                    // Configurer la date du jour par défaut
+                    const dateInput = document.getElementById('dateSoumission');
+                    if (dateInput && !dateInput.value) {
+                        dateInput.value = new Date().toISOString().split('T')[0];
+                    }
+
+                    console.log('Application initialisée avec succès');
+                } catch (error) {
+                    console.error('Erreur lors de l\'initialisation:', error);
+                    APP.utils.showNotification('⚠️ Erreur d\'initialisation', true);
+                }
+            },
+
+            // Mettre à jour l'affichage des numéros de taxes
+            updateTaxNumbers() {
+                try {
+                    const tpsNumber = document.getElementById('tpsEntreprise')?.value || '123456789RT0001';
+                    const tvqNumber = document.getElementById('tvqEntreprise')?.value || '1234567890TQ0001';
+                    
+                    const tpsDisplay = document.getElementById('tpsDisplay');
+                    const tvqDisplay = document.getElementById('tvqDisplay');
+                    
+                    if (tpsDisplay) {
+                        tpsDisplay.textContent = tpsNumber;
+                    }
+                    if (tvqDisplay) {
+                        tvqDisplay.textContent = tvqNumber;
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour des numéros de taxes:', error);
+                }
+            },
+
+            // Synchroniser le nom de l'entreprise
+            syncCompanyName(event) {
+                const newName = event.target.value;
+                const sourceId = event.target.id;
+                
+                const companyNameFields = [
+                    'nomEntreprise',
+                    'nomEntrepriseFooter', 
+                    'nomEntrepriseCopyright1', 
+                    'nomEntrepriseCopyright2'
+                ];
+                
+                companyNameFields.forEach(fieldId => {
+                    if (fieldId !== sourceId) {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.value = newName;
+                        }
+                    }
+                });
+                
+                APP.state.isDirty = true;
+            },
+
+            // Calculer une ligne avec quantité
+            calculateRowWithQuantity(input) {
+                try {
+                    const rowId = input.dataset.row;
+                    
+                    const quantityInput = document.querySelector(`input.quantity-input[data-row="${rowId}"]`);
+                    const amountInput = document.querySelector(`input.amount-input[data-row="${rowId}"]`);
+                    const totalCell = document.querySelector(`[data-total="${rowId}"]`);
+                    
+                    if (!quantityInput || !amountInput || !totalCell) {
+                        return;
+                    }
+                    
+                    let quantity = 1;
+                    let unitCost = 0;
+                    
+                    if (input.classList.contains('quantity-input')) {
+                        quantity = APP.utils.validateNumber(input.value, 0, 99999);
+                        unitCost = APP.utils.validateNumber(amountInput.value);
+                        
+                        if (parseFloat(input.value) !== quantity) {
+                            input.value = quantity;
+                            input.classList.add('error');
+                            setTimeout(() => input.classList.remove('error'), 500);
+                        }
+                    } else if (input.classList.contains('amount-input')) {
+                        quantity = APP.utils.validateNumber(quantityInput.value, 0, 99999);
+                        unitCost = APP.utils.validateNumber(input.value);
+                        
+                        if (parseFloat(input.value) !== unitCost) {
+                            input.value = unitCost;
+                            input.classList.add('error');
+                            setTimeout(() => input.classList.remove('error'), 500);
+                        }
+                    }
+                    
+                    const total = quantity * unitCost;
+                    totalCell.textContent = APP.utils.formatCurrency(total);
+                    
+                    const sectionId = rowId.split('-')[0];
+                    APP.calculateSectionSubtotal(sectionId);
+                    APP.calculateAll();
+                    
+                    if (APP.state.hideEmptySections) {
+                        APP.updateEmptySectionsVisibility();
+                    }
+                    
+                    APP.state.isDirty = true;
+                } catch (error) {
+                    console.error('Erreur lors du calcul de la ligne:', error);
+                }
+            },
+
+            // Calculer le sous-total d'une section
+            calculateSectionSubtotal(sectionId) {
+                try {
+                    let subtotal = 0;
+                    const section = document.querySelector(`[data-section="${sectionId}"]`);
+                    
+                    if (!section) return 0;
+                    
+                    const rows = section.querySelectorAll('.section-row:not(.hidden)');
+                    
+                    rows.forEach(row => {
+                        const totalCell = row.querySelector('.amount-display');
+                        if (totalCell && totalCell.dataset.total) {
+                            const value = APP.utils.parseCurrency(totalCell.textContent);
+                            subtotal += value;
+                        }
+                    });
+                    
+                    const subtotalCell = section.querySelector(`[data-subtotal="${sectionId}"]`);
+                    if (subtotalCell) {
+                        subtotalCell.textContent = APP.utils.formatCurrency(subtotal);
+                    }
+                    
+                    const recapCell = document.getElementById(`recap-${sectionId}`);
+                    if (recapCell) {
+                        recapCell.textContent = APP.utils.formatCurrency(subtotal);
+                    }
+                    
+                    return subtotal;
+                } catch (error) {
+                    console.error('Erreur lors du calcul du sous-total:', error);
+                    return 0;
+                }
+            },
+
+            // Basculer l'affichage d'une ligne
+            toggleRow(checkbox) {
+                try {
+                    const row = checkbox.closest('.section-row');
+                    if (!row) return;
+                    
+                    row.classList.toggle('hidden', !checkbox.checked);
+                    
+                    const sectionId = row.dataset.item.split('-')[0];
+                    APP.calculateSectionSubtotal(sectionId);
+                    APP.calculateAll();
+                    
+                    APP.state.isDirty = true;
+                } catch (error) {
+                    console.error('Erreur lors du toggle de la ligne:', error);
+                }
+            },
+
+            // Calculer tous les totaux (MODIFIÉ POUR PLUSIEURS SECTIONS)
+            calculateAll() {
+                try {
+                    // Calculer toutes les sections (0 à 4 pour MS1)
+                    let totalBase = 0;
+                    for (let i = 0; i <= 4; i++) {
+                        const sectionTotal = APP.calculateSectionSubtotal(i.toString());
+                        totalBase += sectionTotal;
+                        
+                        // Mettre à jour le récapitulatif pour chaque section
+                        APP.updateDisplay('recap-' + i, sectionTotal);
+                        
+                        // Mettre à jour le label du récapitulatif
+                        const categoryInput = document.getElementById('category-' + i);
+                        const recapLabel = document.getElementById('recap-label-' + i);
+                        if (categoryInput && recapLabel) {
+                            recapLabel.textContent = categoryInput.value;
+                        }
+                    }
+                    
+                    // Calculer les frais
+                    const admin = totalBase * APP.state.rates.admin;
+                    const contingency = totalBase * APP.state.rates.contingency;
+                    const profit = totalBase * APP.state.rates.profit;
+                    
+                    const totalAvantTaxes = totalBase + admin + contingency + profit;
+                    const tps = totalAvantTaxes * CONFIG.TAXES.TPS;
+                    const tvq = totalAvantTaxes * CONFIG.TAXES.TVQ;
+                    const totalFinal = totalAvantTaxes + tps + tvq;
+                    
+                    // Mettre à jour l'affichage
+                    APP.updateDisplay('totalBase', totalBase);
+                    APP.updateDisplay('totalAdmin', admin);
+                    APP.updateDisplay('totalContingency', contingency);
+                    APP.updateDisplay('totalProfit', profit);
+                    APP.updateDisplay('totalAvantTaxes', totalAvantTaxes);
+                    APP.updateDisplay('totalTPS', tps);
+                    APP.updateDisplay('totalTVQ', tvq);
+                    APP.updateDisplay('totalFinal', totalFinal);
+                } catch (error) {
+                    console.error('Erreur lors du calcul total:', error);
+                }
+            },
+
+            // Mettre à jour l'affichage
+            updateDisplay(id, value) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = APP.utils.formatCurrency(value);
+                }
+            },
+
+            // Basculer toutes les sections
+            toggleAllSections() {
+                try {
+                    const checkboxes = document.querySelectorAll('.hide-checkbox');
+                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                    
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = !allChecked;
+                        APP.toggleRow(checkbox);
+                    });
+                } catch (error) {
+                    console.error('Erreur lors du toggle des sections:', error);
+                }
+            },
+
+            // Basculer le masquage des sections vides
+            toggleEmptySections() {
+                try {
+                    APP.state.hideEmptySections = !APP.state.hideEmptySections;
+                    APP.updateEmptySectionsVisibility();
+                    
+                    const button = document.querySelector('button[onclick="APP.toggleEmptySections()"]');
+                    if (button) {
+                        if (APP.state.hideEmptySections) {
+                            button.textContent = '👁️ Afficher sections vides';
+                            button.title = 'Afficher toutes les sections';
+                            button.classList.add('success');
+                        } else {
+                            button.textContent = '🔍 Masquer sections vides';
+                            button.title = 'Masquer automatiquement les sections sans prix';
+                            button.classList.remove('success');
+                        }
+                    }
+                    
+                    APP.state.isDirty = true;
+                } catch (error) {
+                    console.error('Erreur lors du toggle des sections vides:', error);
+                }
+            },
+
+            // Mettre à jour la visibilité des sections vides
+            updateEmptySectionsVisibility() {
+                try {
+                    for (let i = 0; i <= 4; i++) {
+                        const section = document.querySelector(`[data-section="${i}"]`);
+                        if (!section) continue;
+                        
+                        const isEmpty = APP.isSectionEmpty(i.toString());
+                        
+                        if (APP.state.hideEmptySections && isEmpty) {
+                            section.classList.add('hidden-section');
+                        } else {
+                            section.classList.remove('hidden-section');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour de la visibilité:', error);
+                }
+            },
+
+            // Vérifier si une section est vide
+            isSectionEmpty(sectionId) {
+                try {
+                    const section = document.querySelector(`[data-section="${sectionId}"]`);
+                    if (!section) return true;
+                    
+                    const amountInputs = section.querySelectorAll('.amount-input');
+                    
+                    return Array.from(amountInputs).every(input => {
+                        const value = parseFloat(input.value) || 0;
+                        return value === 0;
+                    });
+                } catch (error) {
+                    console.error('Erreur lors de la vérification de section vide:', error);
+                    return false;
+                }
+            },
+
+            // Mettre à jour les taux
+            updateProfitRate() {
+                try {
+                    let rate = parseFloat(document.getElementById('profitRate').value);
+                    rate = APP.utils.validateNumber(rate, CONFIG.LIMITS.MIN_RATE, CONFIG.LIMITS.MAX_PROFIT_RATE);
+                    
+                    document.getElementById('profitRate').value = rate;
+                    APP.state.rates.profit = rate / 100;
+                    document.getElementById('profitPercent').textContent = rate.toFixed(1);
+                    
+                    APP.calculateAll();
+                    APP.state.isDirty = true;
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour du taux de profit:', error);
+                }
+            },
+
+            updateAdminRate() {
+                try {
+                    let rate = parseFloat(document.getElementById('adminRate').value);
+                    rate = APP.utils.validateNumber(rate, CONFIG.LIMITS.MIN_RATE, CONFIG.LIMITS.MAX_ADMIN_RATE);
+                    
+                    document.getElementById('adminRate').value = rate;
+                    APP.state.rates.admin = rate / 100;
+                    document.getElementById('adminPercent').textContent = rate.toFixed(1);
+                    
+                    APP.calculateAll();
+                    APP.state.isDirty = true;
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour du taux admin:', error);
+                }
+            },
+
+            updateContingencyRate() {
+                try {
+                    let rate = parseFloat(document.getElementById('contingencyRate').value);
+                    rate = APP.utils.validateNumber(rate, CONFIG.LIMITS.MIN_RATE, CONFIG.LIMITS.MAX_CONTINGENCY_RATE);
+                    
+                    document.getElementById('contingencyRate').value = rate;
+                    APP.state.rates.contingency = rate / 100;
+                    document.getElementById('contingencyPercent').textContent = rate.toFixed(1);
+                    
+                    APP.calculateAll();
+                    APP.state.isDirty = true;
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour du taux de contingences:', error);
+                }
+            },
+
+            // Mettre à jour les labels du récapitulatif
+            updateRecapLabels() {
+                for (let i = 0; i <= 4; i++) {
+                    const categoryInput = document.getElementById('category-' + i);
+                    const recapLabel = document.getElementById('recap-label-' + i);
+                    if (categoryInput && recapLabel) {
+                        recapLabel.textContent = categoryInput.value;
+                    }
+                }
+            },
+
+            // Collecter les données
+            collectData() {
+                const data = {
+                    version: '2.0',
+                    inputs: {},
+                    checkboxes: {},
+                    rates: { ...APP.state.rates },
+                    headerInfo: {},
+                    projectInfo: {},
+                    hideEmptySections: APP.state.hideEmptySections,
+                    timestamp: new Date().toISOString()
+                };
+                
+                try {
+                    // Collecter toutes les informations comme avant
+                    const headerFields = ['numeroSoumission', 'dateSoumission'];
+                    headerFields.forEach(field => {
+                        const el = document.getElementById(field);
+                        if (el) data.headerInfo[field] = el.value;
+                    });
+                    
+                    const projectFields = [
+                        'nomClient', 'adresseClient', 'villeClient', 'codePostalClient',
+                        'nomProjet', 'typeConstruction', 'superficie', 'etages',
+                        'typeFondation', 'nomContact', 'telContact', 'cellContact', 
+                        'emailContact', 'chargeProjet', 'preparePar'
+                    ];
+                    
+                    const companyFields = [
+                        'nomEntreprise', 'adresseEntreprise', 'villeEntreprise', 'codePostalEntreprise',
+                        'telEntreprise', 'cellEntreprise', 'emailEntreprise',
+                        'rbqEntreprise', 'neqEntreprise', 'tpsEntreprise', 'tvqEntreprise',
+                        'nomEntrepriseFooter', 'telInfoFooter', 'messageConfiance',
+                        'nomEntrepriseCopyright1', 'anneeCopyright', 'nomEntrepriseCopyright2'
+                    ];
+                    
+                    projectFields.forEach(field => {
+                        const el = document.getElementById(field);
+                        if (el) data.projectInfo[field] = el.value;
+                    });
+                    
+                    data.companyInfo = {};
+                    companyFields.forEach(field => {
+                        const el = document.getElementById(field);
+                        if (el) data.companyInfo[field] = el.value;
+                    });
+                    
+                    document.querySelectorAll('.amount-input').forEach(input => {
+                        data.inputs[input.dataset.row] = input.value;
+                    });
+                    
+                    data.quantities = {};
+                    document.querySelectorAll('.quantity-input').forEach(input => {
+                        data.quantities[input.dataset.row] = input.value;
+                    });
+                    
+                    document.querySelectorAll('.hide-checkbox').forEach((checkbox, index) => {
+                        data.checkboxes[index] = checkbox.checked;
+                    });
+                    
+                    data.itemTitles = {};
+                    document.querySelectorAll('.item-title-input').forEach(input => {
+                        data.itemTitles[input.dataset.row] = input.value;
+                    });
+                    
+                    data.itemDescriptions = {};
+                    document.querySelectorAll('.item-details-input').forEach(textarea => {
+                        data.itemDescriptions[textarea.dataset.row] = textarea.value;
+                    });
+                    
+                    data.conditions = {};
+                    const conditionFields = ['validite', 'delai', 'paiement', 'garanties', 'augmentation', 'sol', 'modifications'];
+                    conditionFields.forEach(field => {
+                        const el = document.getElementById('condition-' + field);
+                        if (el) data.conditions[field] = el.value;
+                    });
+                    
+                    data.exclusions = {};
+                    for (let i = 1; i <= 8; i++) {
+                        const el = document.getElementById('exclusion-' + i);
+                        if (el) data.exclusions['exclusion-' + i] = el.value;
+                    }
+                    
+                    data.categoryTitles = {};
+                    for (let i = 0; i <= 4; i++) {
+                        const el = document.getElementById('category-' + i);
+                        if (el) data.categoryTitles['category-' + i] = el.value;
+                    }
+                    
+                    data.attachments = APP.attachments;
+                } catch (error) {
+                    console.error('Erreur lors de la collecte des données:', error);
+                }
+                
+                return data;
+            },
+
+            // Restaurer les données
+            restoreData(data) {
+                if (!data) return;
+                
+                try {
+                    // Restaurer les taux
+                    if (data.rates) {
+                        APP.state.rates = { ...data.rates };
+                        document.getElementById('adminRate').value = (data.rates.admin * 100).toFixed(1);
+                        document.getElementById('contingencyRate').value = (data.rates.contingency * 100).toFixed(1);
+                        document.getElementById('profitRate').value = (data.rates.profit * 100).toFixed(1);
+                    }
+                    
+                    // Restaurer les informations d'en-tête et de projet
+                    if (data.headerInfo) {
+                        Object.keys(data.headerInfo).forEach(key => {
+                            const el = document.getElementById(key);
+                            if (el) el.value = data.headerInfo[key];
+                        });
+                    }
+                    
+                    if (data.projectInfo) {
+                        Object.keys(data.projectInfo).forEach(key => {
+                            const el = document.getElementById(key);
+                            if (el) el.value = data.projectInfo[key];
+                        });
+                    }
+                    
+                    if (data.companyInfo) {
+                        Object.keys(data.companyInfo).forEach(key => {
+                            const el = document.getElementById(key);
+                            if (el) el.value = data.companyInfo[key];
+                        });
+                    }
+                    
+                    // Restaurer les montants et quantités
+                    if (data.inputs) {
+                        Object.keys(data.inputs).forEach(key => {
+                            const el = document.querySelector(`.amount-input[data-row="${key}"]`);
+                            if (el) el.value = data.inputs[key];
+                        });
+                    }
+                    
+                    if (data.quantities) {
+                        Object.keys(data.quantities).forEach(key => {
+                            const el = document.querySelector(`.quantity-input[data-row="${key}"]`);
+                            if (el) el.value = data.quantities[key];
+                        });
+                    }
+                    
+                    // Restaurer les checkboxes
+                    if (data.checkboxes) {
+                        const checkboxes = document.querySelectorAll('.hide-checkbox');
+                        Object.keys(data.checkboxes).forEach(key => {
+                            if (checkboxes[key]) {
+                                checkboxes[key].checked = data.checkboxes[key];
+                                const row = checkboxes[key].closest('.section-row');
+                                if (row) {
+                                    row.classList.toggle('hidden', !data.checkboxes[key]);
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Restaurer les titres et descriptions
+                    if (data.itemTitles) {
+                        Object.keys(data.itemTitles).forEach(key => {
+                            const el = document.querySelector(`.item-title-input[data-row="${key}"]`);
+                            if (el) el.value = data.itemTitles[key];
+                        });
+                    }
+                    
+                    if (data.itemDescriptions) {
+                        Object.keys(data.itemDescriptions).forEach(key => {
+                            const el = document.querySelector(`.item-details-input[data-row="${key}"]`);
+                            if (el) el.value = data.itemDescriptions[key];
+                        });
+                    }
+                    
+                    // Restaurer conditions et exclusions
+                    if (data.conditions) {
+                        Object.keys(data.conditions).forEach(key => {
+                            const el = document.getElementById('condition-' + key);
+                            if (el) el.value = data.conditions[key];
+                        });
+                    }
+                    
+                    if (data.exclusions) {
+                        Object.keys(data.exclusions).forEach(key => {
+                            const el = document.getElementById(key);
+                            if (el) el.value = data.exclusions[key];
+                        });
+                    }
+                    
+                    // Restaurer les titres de catégories
+                    if (data.categoryTitles) {
+                        Object.keys(data.categoryTitles).forEach(key => {
+                            const el = document.getElementById(key);
+                            if (el) el.value = data.categoryTitles[key];
+                        });
+                    }
+                    
+                    // Restaurer les pièces jointes
+                    if (data.attachments) {
+                        APP.attachments = data.attachments;
+                        APP.updateAttachmentsList();
+                    }
+                    
+                    APP.state.hideEmptySections = data.hideEmptySections || false;
+                    
+                    APP.calculateAll();
+                } catch (error) {
+                    console.error('Erreur lors de la restauration des données:', error);
+                }
+            },
+
+            // Sauvegarder automatiquement
+            autoSave() {
+                try {
+                    const now = Date.now();
+                    
+                    if (now - APP.state.lastSaveTime < CONFIG.LIMITS.SAVE_THROTTLE) {
+                        return;
+                    }
+                    
+                    APP.state.lastSaveTime = now;
+                    
+                    if (!APP.utils.isLocalStorageAvailable()) {
+                        console.warn('LocalStorage non disponible pour la sauvegarde');
+                        return;
+                    }
+                    
+                    const data = APP.collectData();
+                    localStorage.setItem('soumission_data_ms1', JSON.stringify(data));
+                    APP.utils.showNotification('✔ Sauvegarde automatique');
+                } catch (error) {
+                    if (error.name === 'QuotaExceededError') {
+                        APP.utils.showNotification('⚠️ Espace de stockage insuffisant', true);
+                    } else {
+                        console.error('Erreur lors de la sauvegarde automatique:', error);
+                    }
+                }
+            },
+
+            // Sauvegarder manuellement
+            saveData() {
+                try {
+                    if (!APP.utils.isLocalStorageAvailable()) {
+                        APP.utils.showNotification('⚠️ Stockage local non disponible', true);
+                        return;
+                    }
+                    
+                    const currentNumber = document.getElementById('numeroSoumission').value;
+                    const data = APP.collectData();
+                    
+                    const savedList = APP.getSavedList();
+                    const index = savedList.findIndex(item => item.numeroSoumission === currentNumber);
+                    
+                    if (index !== -1) {
+                        savedList[index] = {
+                            numeroSoumission: currentNumber,
+                            nomClient: data.projectInfo.nomClient || 'Sans nom',
+                            nomProjet: data.projectInfo.nomProjet || 'Sans projet',
+                            date: new Date().toISOString(),
+                            data: data
+                        };
+                    } else {
+                        savedList.push({
+                            numeroSoumission: currentNumber,
+                            nomClient: data.projectInfo.nomClient || 'Sans nom',
+                            nomProjet: data.projectInfo.nomProjet || 'Sans projet',
+                            date: new Date().toISOString(),
+                            data: data
+                        });
+                    }
+                    
+                    localStorage.setItem('soumissions_list_ms1', JSON.stringify(savedList));
+                    localStorage.setItem('soumission_current_ms1', currentNumber);
+                    localStorage.setItem('soumission_data_ms1', JSON.stringify(data));
+                    
+                    APP.utils.showNotification('✔ Soumission ' + currentNumber + ' sauvegardée');
+                } catch (error) {
+                    console.error('Erreur lors de la sauvegarde:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors de la sauvegarde', true);
+                }
+            },
+
+            // Autres méthodes (saveAs, getSavedList, showSavedList, etc.)
+            saveAs() {
+                try {
+                    if (!APP.utils.isLocalStorageAvailable()) {
+                        APP.utils.showNotification('⚠️ Stockage local non disponible', true);
+                        return;
+                    }
+                    
+                    const nextNumber = APP.getNextNumber();
+                    document.getElementById('numeroSoumission').value = nextNumber;
+                    
+                    APP.saveData();
+                    APP.utils.showNotification('✔ Enregistré sous le numéro ' + nextNumber);
+                    
+                    // Proposer de télécharger le fichier HTML
+                    setTimeout(() => {
+                        if (confirm(`Voulez-vous également télécharger une copie HTML de la soumission ${nextNumber} ?`)) {
+                            APP.exportHTML();
+                        }
+                    }, 500);
+                } catch (error) {
+                    console.error('Erreur lors de l\'enregistrement sous:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors de l\'enregistrement', true);
+                }
+            },
+
+            getSavedList() {
+                try {
+                    const saved = localStorage.getItem('soumissions_list_ms1');
+                    return saved ? JSON.parse(saved) : [];
+                } catch (error) {
+                    console.error('Erreur lors de la récupération de la liste:', error);
+                    return [];
+                }
+            },
+
+            getNextNumber() {
+                try {
+                    const savedList = APP.getSavedList();
+                    const currentYear = new Date().getFullYear();
+                    
+                    const yearNumbers = savedList
+                        .map(item => item.numeroSoumission)
+                        .filter(num => num && num.startsWith(currentYear + '-'))
+                        .map(num => {
+                            const parts = num.split('-');
+                            return parts.length > 1 ? parseInt(parts[1]) : 0;
+                        })
+                        .filter(num => !isNaN(num));
+                    
+                    const maxNumber = yearNumbers.length > 0 ? Math.max(...yearNumbers) : 0;
+                    const nextNumber = maxNumber + 1;
+                    return `${currentYear}-${String(nextNumber).padStart(3, '0')}-MS1`;
+                } catch (error) {
+                    console.error('Erreur lors de la génération du numéro:', error);
+                    return `${new Date().getFullYear()}-001-MS1`;
+                }
+            },
+
+            showSavedList() {
+                try {
+                    const modal = document.getElementById('savedModal');
+                    const listEl = document.getElementById('savedList');
+                    const savedList = APP.getSavedList();
+                    
+                    if (savedList.length === 0) {
+                        listEl.innerHTML = '<div class="no-saves">Aucune soumission sauvegardée</div>';
+                    } else {
+                        savedList.sort((a, b) => new Date(b.date) - new Date(a.date));
+                        
+                        let html = '';
+                        savedList.forEach(item => {
+                            const date = new Date(item.date);
+                            const dateStr = date.toLocaleDateString('fr-CA') + ' ' + date.toLocaleTimeString('fr-CA', {hour: '2-digit', minute: '2-digit'});
+                            
+                            html += `
+                                <li class="saved-item">
+                                    <div class="saved-item-info">
+                                        <div class="saved-item-number">Soumission #${APP.utils.escapeHtml(item.numeroSoumission)}</div>
+                                        <div class="saved-item-details">
+                                            Client: ${APP.utils.escapeHtml(item.nomClient)}<br>
+                                            Projet: ${APP.utils.escapeHtml(item.nomProjet)}<br>
+                                            Sauvegardé: ${dateStr}
+                                        </div>
+                                    </div>
+                                    <div class="saved-item-actions">
+                                        <button class="saved-item-btn load" onclick="APP.loadSavedItem('${APP.utils.escapeHtml(item.numeroSoumission)}')">
+                                            Charger
+                                        </button>
+                                        <button class="saved-item-btn delete" onclick="APP.deleteSavedItem('${APP.utils.escapeHtml(item.numeroSoumission)}')">
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                </li>
+                            `;
+                        });
+                        listEl.innerHTML = html;
+                    }
+                    
+                    modal.classList.add('show');
+                } catch (error) {
+                    console.error('Erreur lors de l\'affichage de la liste:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors de l\'affichage', true);
+                }
+            },
+
+            closeSavedList() {
+                const modal = document.getElementById('savedModal');
+                modal.classList.remove('show');
+            },
+
+            loadSavedItem(numeroSoumission) {
+                try {
+                    const savedList = APP.getSavedList();
+                    const item = savedList.find(s => s.numeroSoumission === numeroSoumission);
+                    
+                    if (!item) {
+                        APP.utils.showNotification('⚠️ Soumission introuvable', true);
+                        return;
+                    }
+                    
+                    APP.utils.showLoading(true);
+                    APP.restoreData(item.data);
+                    
+                    localStorage.setItem('soumission_current_ms1', numeroSoumission);
+                    localStorage.setItem('soumission_data_ms1', JSON.stringify(item.data));
+                    
+                    APP.closeSavedList();
+                    APP.utils.showLoading(false);
+                    APP.utils.showNotification('✔ Soumission ' + numeroSoumission + ' chargée');
+                } catch (error) {
+                    console.error('Erreur lors du chargement:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors du chargement', true);
+                    APP.utils.showLoading(false);
+                }
+            },
+
+            deleteSavedItem(numeroSoumission) {
+                if (!confirm(`Êtes-vous sûr de vouloir supprimer la soumission ${numeroSoumission} ?`)) {
+                    return;
+                }
+                
+                try {
+                    let savedList = APP.getSavedList();
+                    savedList = savedList.filter(item => item.numeroSoumission !== numeroSoumission);
+                    
+                    localStorage.setItem('soumissions_list_ms1', JSON.stringify(savedList));
+                    
+                    const current = localStorage.getItem('soumission_current_ms1');
+                    if (current === numeroSoumission) {
+                        localStorage.removeItem('soumission_current_ms1');
+                    }
+                    
+                    APP.showSavedList();
+                    APP.utils.showNotification('✔ Soumission supprimée');
+                } catch (error) {
+                    console.error('Erreur lors de la suppression:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors de la suppression', true);
+                }
+            },
+
+            loadData() {
+                try {
+                    if (!APP.utils.isLocalStorageAvailable()) {
+                        return;
+                    }
+                    
+                    const currentNumber = localStorage.getItem('soumission_current_ms1');
+                    
+                    if (currentNumber) {
+                        const savedList = APP.getSavedList();
+                        const item = savedList.find(s => s.numeroSoumission === currentNumber);
+                        
+                        if (item && item.data) {
+                            APP.utils.showLoading(true);
+                            APP.restoreData(item.data);
+                            APP.utils.showLoading(false);
+                            console.log('Soumission ' + currentNumber + ' chargée');
+                            return;
+                        }
+                    }
+                    
+                    const saved = localStorage.getItem('soumission_data_ms1');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        APP.restoreData(data);
+                        console.log('Données restaurées depuis localStorage');
+                    }
+                } catch (error) {
+                    console.error('Erreur lors du chargement des données:', error);
+                }
+            },
+
+            resetAll() {
+                if (!confirm('Êtes-vous sûr de vouloir réinitialiser tous les champs ?')) {
+                    return;
+                }
+                
+                try {
+                    document.querySelectorAll('.amount-input').forEach(input => {
+                        input.value = 0;
+                    });
+                    
+                    document.querySelectorAll('.quantity-input').forEach(input => {
+                        input.value = 1;
+                    });
+                    
+                    document.querySelectorAll('.hide-checkbox').forEach(checkbox => {
+                        checkbox.checked = true;
+                        const row = checkbox.closest('.section-row');
+                        if (row) row.classList.remove('hidden');
+                    });
+                    
+                    APP.calculateAll();
+                    APP.utils.showNotification('✔ Tous les champs ont été réinitialisés');
+                } catch (error) {
+                    console.error('Erreur lors de la réinitialisation:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors de la réinitialisation', true);
+                }
+            },
+
+            resetTexts() {
+                if (!confirm('Êtes-vous sûr de vouloir réinitialiser tous les textes à leurs valeurs par défaut ?')) {
+                    return;
+                }
+                
+                location.reload();
+            },
+
+            clearCache() {
+                if (!confirm('Êtes-vous sûr de vouloir vider tout le cache ? Toutes les soumissions sauvegardées seront perdues.')) {
+                    return;
+                }
+                
+                try {
+                    localStorage.clear();
+                    APP.utils.showNotification('✔ Cache vidé avec succès');
+                    setTimeout(() => location.reload(), 1500);
+                } catch (error) {
+                    console.error('Erreur lors du vidage du cache:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors du vidage du cache', true);
+                }
+            },
+
+            exportData() {
+                try {
+                    const data = APP.collectData();
+                    const dataStr = JSON.stringify(data, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                    
+                    const exportName = `soumission_ms1_${data.headerInfo.numeroSoumission || 'export'}_${new Date().toISOString().split('T')[0]}.json`;
+                    
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', exportName);
+                    linkElement.click();
+                    
+                    APP.utils.showNotification('✔ Données exportées');
+                } catch (error) {
+                    console.error('Erreur lors de l\'export:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors de l\'export', true);
+                }
+            },
+
+            exportHTML() {
+                try {
+                    // Cloner le document actuel
+                    const htmlContent = document.documentElement.outerHTML;
+                    
+                    // Créer un blob avec le contenu HTML
+                    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Générer le nom du fichier
+                    const numero = document.getElementById('numeroSoumission')?.value || 'export';
+                    const date = new Date().toISOString().split('T')[0];
+                    const fileName = `soumission_ms1_${numero}_${date}.html`;
+                    
+                    // Créer et déclencher le téléchargement
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Libérer l'URL
+                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                    
+                    APP.utils.showNotification('✔ Fichier HTML téléchargé');
+                } catch (error) {
+                    console.error('Erreur lors de l\'export HTML:', error);
+                    APP.utils.showNotification('⚠️ Erreur lors de l\'export HTML', true);
+                }
+            },
+
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            APP.restoreData(data);
+                            APP.calculateAll();
+                            APP.utils.showNotification('✔ Données importées avec succès');
+                        } catch (error) {
+                            console.error('Erreur lors de l\'import:', error);
+                            APP.utils.showNotification('⚠️ Fichier invalide', true);
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            },
+
+            // Gestion des pièces jointes
+            handleFileSelect(event) {
+                const files = event.target.files;
+                if (!files || files.length === 0) return;
+                
+                Array.from(files).forEach(file => {
+                    if (file.size > CONFIG.LIMITS.MAX_FILE_SIZE) {
+                        APP.utils.showNotification(`⚠️ ${file.name} est trop volumineux (max 5MB)`, true);
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        APP.attachments.push({
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            data: e.target.result,
+                            date: new Date().toISOString()
+                        });
+                        APP.updateAttachmentsList();
+                        APP.state.isDirty = true;
+                    };
+                    reader.readAsDataURL(file);
+                });
+                
+                event.target.value = '';
+            },
+
+            updateAttachmentsList() {
+                const listEl = document.getElementById('attachmentsList');
+                if (!listEl) return;
+                
+                if (APP.attachments.length === 0) {
+                    listEl.innerHTML = '<div style="text-align: center; color: #999; padding: 20px; font-size: 11px;">Aucun fichier joint</div>';
+                    return;
+                }
+                
+                let html = '';
+                APP.attachments.forEach((file, index) => {
+                    const sizeKB = Math.round(file.size / 1024);
+                    const icon = APP.getFileIcon(file.type);
+                    
+                    html += `
+                        <div class="attachment-item">
+                            <div class="attachment-icon">${icon}</div>
+                            <div class="attachment-info">
+                                <div class="attachment-name">${APP.utils.escapeHtml(file.name)}</div>
+                                <div class="attachment-size">${sizeKB} KB</div>
+                            </div>
+                            <div class="attachment-actions">
+                                <button class="attachment-btn view" onclick="APP.previewFile(${index})">Voir</button>
+                                <button class="attachment-btn remove" onclick="APP.removeFile(${index})">Retirer</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                listEl.innerHTML = html;
+            },
+
+            getFileIcon(type) {
+                if (type.startsWith('image/')) return '🖼️';
+                if (type.startsWith('audio/')) return '🎵';
+                if (type.includes('pdf')) return '📄';
+                if (type.includes('word') || type.includes('document')) return '📝';
+                if (type.includes('sheet') || type.includes('excel')) return '📊';
+                if (type.includes('text')) return '📃';
+                return '📎';
+            },
+
+            previewFile(index) {
+                const file = APP.attachments[index];
+                if (!file) return;
+                
+                const modal = document.getElementById('filePreviewModal');
+                const content = document.getElementById('previewContent');
+                
+                let previewHtml = '<button class="preview-close" onclick="APP.closePreview()">×</button>';
+                
+                if (file.type.startsWith('image/')) {
+                    previewHtml += `<img src="${file.data}" class="preview-image" alt="${APP.utils.escapeHtml(file.name)}">`;
+                } else if (file.type.startsWith('text/') || file.type.includes('json')) {
+                    const text = atob(file.data.split(',')[1]);
+                    previewHtml += `<div class="preview-text">${APP.utils.escapeHtml(text)}</div>`;
+                } else {
+                    previewHtml += `
+                        <div style="padding: 40px; text-align: center;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">${APP.getFileIcon(file.type)}</div>
+                            <h3>${APP.utils.escapeHtml(file.name)}</h3>
+                            <p>Aperçu non disponible pour ce type de fichier</p>
+                            <a href="${file.data}" download="${file.name}" class="control-btn" style="margin-top: 20px;">
+                                Télécharger
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                content.innerHTML = previewHtml;
+                modal.classList.add('show');
+            },
+
+            closePreview() {
+                const modal = document.getElementById('filePreviewModal');
+                modal.classList.remove('show');
+            },
+
+            removeFile(index) {
+                if (!confirm('Voulez-vous retirer ce fichier ?')) return;
+                
+                APP.attachments.splice(index, 1);
+                APP.updateAttachmentsList();
+                APP.state.isDirty = true;
+                APP.utils.showNotification('✔ Fichier retiré');
+            },
+
+            // Gestion de la signature
+            showSignatureForm(decision) {
+                const form = document.getElementById('signatureForm');
+                const buttons = document.getElementById('decisionButtons');
+                
+                form.classList.add('show');
+                buttons.style.display = 'none';
+                
+                form.dataset.decision = decision;
+                
+                const confirmBtn = document.getElementById('confirmBtn');
+                if (decision === 'accept') {
+                    confirmBtn.style.background = '#10b981';
+                    confirmBtn.textContent = 'CONFIRMER L\'ACCEPTATION';
+                } else {
+                    confirmBtn.style.background = '#ef4444';
+                    confirmBtn.textContent = 'CONFIRMER LE REFUS';
+                }
+            },
+
+            confirmDecision() {
+                const form = document.getElementById('signatureForm');
+                const decision = form.dataset.decision;
+                
+                const name = document.getElementById('clientName').value;
+                const email = document.getElementById('clientEmail').value;
+                
+                if (!name || !email) {
+                    alert('Veuillez remplir les champs obligatoires');
+                    return;
+                }
+                
+                const section = document.getElementById('signatureSection');
+                const message = document.getElementById('confirmationMessage');
+                const text = document.getElementById('confirmationText');
+                const timestamp = document.getElementById('signatureTimestamp');
+                
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('fr-CA', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                if (decision === 'accept') {
+                    message.className = 'confirmation-message accepted';
+                    text.innerHTML = `
+                        <strong>✅ SOUMISSION ACCEPTÉE</strong><br>
+                        Par: ${APP.utils.escapeHtml(name)}<br>
+                        Courriel: ${APP.utils.escapeHtml(email)}
+                    `;
+                } else {
+                    message.className = 'confirmation-message refused';
+                    text.innerHTML = `
+                        <strong>❌ SOUMISSION REFUSÉE</strong><br>
+                        Par: ${APP.utils.escapeHtml(name)}<br>
+                        Courriel: ${APP.utils.escapeHtml(email)}
+                    `;
+                }
+                
+                timestamp.textContent = `Signé le ${dateStr}`;
+                
+                section.classList.add('signed');
+                message.style.display = 'block';
+                form.style.display = 'none';
+                
+                APP.state.isDirty = true;
+                APP.autoSave();
+                
+                APP.utils.showNotification('✔ Décision enregistrée');
+            }
+        };
+
+        // Initialiser l'application au chargement
+        document.addEventListener('DOMContentLoaded', APP.init);
+    </script>
+</body>
+</html>
